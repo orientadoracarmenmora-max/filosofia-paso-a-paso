@@ -297,7 +297,7 @@ const ramasExamen = [
 ].map(([pregunta,i,exp])=>{
  const [rama,pista,razon] = pistasRamas[i];
  return ['Reconocer una rama',pregunta,'Es de ___ porque pregunta por ___.',
-  `Es de ${rama} porque ${exp ? exp.charAt(0).toLowerCase()+exp.slice(1).replace(/\.$/,'')+'.' : razon+'.'}`,pista];
+  `Es de ${rama} porque ${exp ? exp.charAt(0).toLowerCase()+exp.slice(1).replace(/\.$/,'')+'.' : razon+'.'}`,pista,i];
 });
 const explicacionesExamen = [
  '', 'Busca una excepción. Piensa en un rumor que se repite y que nadie ha comprobado.',
@@ -352,24 +352,56 @@ function guiaExamen() {
 function practicarExamen(id) {
  const [titulo,banco] = recorridosExamen[id];
  const borradores = banco.map(()=>'');
+ const correcciones = banco.map(() => ({ seleccion:'', fallos:new Set(), mensaje:'', resuelta:false }));
  let actual = 0;
  main.innerHTML = cabecera('Qué tengo que saber para el examen',titulo,'Lee, completa la frase y mira el ejemplo.') +
  boton('Volver a la guía de examen','inicio') + '<section id="pregunta-examen" class="panel"></section>';
  const panel = document.querySelector('#pregunta-examen');
  function mostrar(mover = true) {
-  const [tipo,pregunta,inicioFrase,ejemplo,ayuda] = banco[actual];
+  const [tipo,pregunta,inicioFrase,ejemplo,ayuda,ramaCorrecta] = banco[actual];
+  const esRama = id === 'ramas';
+  const correccion = correcciones[actual];
   const frase = inicioFrase.replaceAll('…',' ___');
   panel.innerHTML = `${contador(actual,banco.length)}<p class="kicker">${tipo}</p>
    <h2 id="consigna-examen" tabindex="-1">${pregunta}</h2>
    <details><summary>Ver explicación fácil</summary><p>${ayuda}</p></details>
+   ${esRama ? `<form id="comprobar-rama">
+    <label for="elegir-rama"><strong>¿Qué rama eliges?</strong></label>
+    <select id="elegir-rama"><option value="">Elige una rama</option>${pistasRamas.map(([nombre],i)=>`<option value="${i}">${nombre}</option>`).join('')}</select>
+    <button type="submit" class="primario">Comprobar</button>
+    <p id="resultado-rama" class="estado" role="status"></p>
+   </form>` : ''}
    <p><strong>Frase con huecos</strong><br>${frase}</p>
    <button type="button" id="usar-examen">Poner la frase en mi respuesta</button>
    <label class="campo-examen" for="texto-examen"><strong>Mi respuesta</strong></label><textarea id="texto-examen" aria-describedby="consigna-examen"></textarea>
-   <details><summary>Ver ejemplo corto</summary><p>${ejemplo}</p></details>
+   <details id="ejemplo-examen" ${esRama && !correccion.resuelta && correccion.fallos.size < 2 ? 'hidden' : ''}><summary>Ver ejemplo corto</summary><p>${ejemplo}</p></details>
    <div class="acciones">
     ${actual>0?'<button type="button" id="prev-examen">Anterior</button>':''}
     ${actual<banco.length-1?'<button type="button" id="next-examen" class="primario">Siguiente pregunta</button>':boton('Terminar y volver a la guía','inicio',true)}
    </div>`;
+  if (esRama) {
+   const selector = panel.querySelector('#elegir-rama');
+   const resultado = panel.querySelector('#resultado-rama');
+   const ejemploDetalle = panel.querySelector('#ejemplo-examen');
+   selector.value = correccion.seleccion;
+   resultado.textContent = correccion.mensaje;
+   selector.onchange = () => { correccion.seleccion = selector.value; };
+   panel.querySelector('#comprobar-rama').onsubmit = evento => {
+    evento.preventDefault();
+    if (selector.value === '') {
+     correccion.mensaje = 'Elige una rama antes de comprobar.';
+    } else if (Number(selector.value) === ramaCorrecta) {
+     correccion.resuelta = true;
+     correccion.mensaje = '¡Correcto! ' + ejemplo;
+    } else {
+     correccion.fallos.add(selector.value);
+     correccion.mensaje = 'Prueba otra vez. Pista: ' + ayuda;
+     if (correccion.fallos.size >= 2) correccion.mensaje += ' Puedes probar otra opción o abrir el ejemplo.';
+    }
+    resultado.textContent = correccion.mensaje;
+    ejemploDetalle.hidden = !correccion.resuelta && correccion.fallos.size < 2;
+   };
+  }
   const area = panel.querySelector('textarea');
   area.value = borradores[actual];
   area.oninput = () => { borradores[actual] = area.value; };
@@ -398,11 +430,42 @@ function inicio() {
  ).join('') + '</div>' +
  `<section class="panel"><h2>Cómo usar la aplicación</h2><ol class="pasos"><li>Lee la idea clave y abre el ejemplo.</li><li>Practica una pregunta cada vez. Puedes volver a intentarlo.</li><li>Escribe una respuesta y revísala con el modelo.</li></ol><p>Las preguntas sirven para ensayar lo trabajado en clase. Puedes hacerlas a tu ritmo.</p>${boton('Ir al taller de respuestas','taller')}</section>`;
 }
+const lecturaFacil = {
+ filosofar: [
+  ['Filosofar es parar y preguntar: «¿Por qué pienso eso?». Después buscas una razón y miras si hay algún caso que haga dudar.','Mucha gente comparte un rumor. ¿Eso lo hace verdadero? Para saberlo, tengo que comprobar si hay pruebas.'],
+  ['El mito cuenta una historia que explica algo. El logos intenta explicarlo con razones que podemos revisar. El cambio ocurrió poco a poco.','En el mito, los cambios en la vida de Deméter y su hija explican las estaciones. Una explicación científica estudia cómo llega la luz del Sol a la Tierra a lo largo del año.'],
+  ['Arjé quiere decir «principio». Los primeros filósofos buscaban un principio común para explicar de dónde vienen las cosas.','Tales propuso el agua. Anaximandro propuso el ápeiron, algo sin límites y sin forma definida. Anaxímenes propuso el aire.'],
+  ['En Grecia había oportunidades para conocer otras ideas y conversar sobre ellas. Eso ayudó a hacer preguntas nuevas.','Al viajar, los comerciantes conocían costumbres diferentes. Al escribir una explicación, otras personas podían leerla y discutirla.'],
+  ['Burnet destaca lo que cambió. Cornford destaca qué preguntas se mantuvieron y cambiaron de respuesta. Jaeger dice que el cambio fue poco a poco.','El mito y los primeros filósofos preguntaban de dónde viene el mundo. Una respuesta hablaba de dioses. Otra buscaba un principio en la naturaleza.'],
+  ['La razón instrumental pregunta «¿Cómo lo hago?». La razón crítica pregunta también «¿Está bien hacerlo?».','Poner cámaras puede ser una forma eficaz de vigilar. Antes hay que preguntar si hace falta vigilar y qué pasa con la intimidad de las personas.']
+ ],
+ ramas: [
+  ['Busca preguntas sobre qué existe o qué es real.','«¿Todo lo que existe se puede tocar?» pregunta por el tipo de cosas que existen.'],
+  ['Busca preguntas sobre cómo sabemos algo o qué pruebas tenemos.','«¿Cómo puedo saber si esta noticia es verdadera?» pregunta cómo comprobamos lo que creemos.'],
+  ['Busca preguntas sobre si está bien o mal hacer algo.','«¿Está bien mentir para ayudar a un amigo?» pregunta si esa decisión es correcta.'],
+  ['Busca preguntas sobre las leyes, los derechos y quién puede tomar decisiones para todo un grupo.','«¿Quién debería decidir las leyes?» pregunta cómo se organiza la vida en común.'],
+  ['Busca preguntas sobre si la última frase se deduce de las frases anteriores.','Si todos los perros son mamíferos y Lúa es un perro, entonces Lúa es un mamífero. La conclusión se sigue de lo anterior.'],
+  ['Busca preguntas sobre el arte o la belleza.','«¿Puede ser arte una silla?» pregunta qué hace que algo sea una obra de arte.']
+ ],
+ amor: [
+  ['Aristófanes cuenta un mito. Antes las personas eran seres enteros. Zeus los dividió. Desde entonces, cada mitad busca a la otra.','La idea de la mitad perdida explica por qué alguien puede sentir que le falta algo y quiere sentirse completo al amar.'],
+  ['Diotima dice que al amar deseamos algo que nos falta o queremos conservar algo bueno que ya tenemos. Podemos aprender a desear cosas distintas.','Primero me llama la atención el físico. Después valoro cómo es esa persona y qué hace. Diotima dice que el deseo puede seguir creciendo hasta buscar qué es la belleza en sí.'],
+  ['Schopenhauer cree que detrás del enamoramiento actúa un impulso que llama Voluntad de vivir. En su teoría, ese impulso está ligado a la reproducción.','Una persona siente que ha elegido de quién enamorarse. Schopenhauer diría que hay un impulso que también influye en esa atracción.'],
+  ['Para Simone Weil, amar es prestar atención. Eso significa intentar entender qué piensa y qué necesita la otra persona.','Una amiga piensa distinto. Puedo preguntarle por qué y escucharla, aunque yo siga pensando de otra manera.']
+ ]
+};
+
 function esquema(u) {
  main.innerHTML = cabecera(u.tema,u.titulo,u.resumen) + opcionesUnidad(u) +
- '<section class="panel"><h2>Lo imprescindible</h2>' + u.fichas.map(([titulo,clave,exp,ej]) =>
-  `<article class="ficha"><h3>${titulo}</h3><p class="clave">${clave}</p><details><summary>Ver explicación y ejemplo</summary><p>${exp}</p><p><strong>Ejemplo resuelto.</strong> ${ej}</p></details></article>`
- ).join('') + '</section>' + fuente(u.fuente);
+ '<section class="panel"><h2>Lo imprescindible</h2><p>Abre una idea. Lee primero la explicación corta y después el ejemplo.</p>' +
+ u.fichas.map(([titulo,clave,exp,ej],i) => {
+  const [facil,ejemploFacil] = lecturaFacil[u.id][i];
+  return `<details class="ficha"><summary>${titulo}</summary>
+   <p><strong>En pocas palabras</strong><br>${facil}</p>
+   <p><strong>Ejemplo</strong><br>${ejemploFacil}</p>
+   <details><summary>Leer con más detalle</summary><p class="clave">${clave}</p><p>${exp}</p><p>${ej}</p></details>
+  </details>`;
+ }).join('') + '</section>' + fuente(u.fuente);
 }
 function cuestionario(u,nivel) {
  const banco = u.preguntas.filter(q => q[0] === nivel);
