@@ -69,6 +69,10 @@ select{font:inherit;color:inherit;background:white;border:1px solid #6d8275;bord
 .ficha details{border:0;padding:0;margin-bottom:0}
 .ficha h3{margin-bottom:.25rem}
 .campo-examen{display:block;margin-top:1rem}
+.guion-respuesta{padding-left:1.65rem;margin-bottom:1rem}
+.guion-respuesta li{margin-block:.5rem}
+.guion-respuesta p{margin:.2rem 0 .5rem}
+.modelo-respuesta{color:#842025;background:#fff3f0;border:1px solid #d7a4a0;border-radius:.6rem;padding:.45rem .75rem;margin:1rem 0}
 </style>
 
 </head>
@@ -243,11 +247,10 @@ const cabecera = (etapa, titulo, intro) =>
  `<section class="hero"><p class="kicker">${etapa}</p><h1>${titulo}</h1><p class="bajada">${intro}</p></section>`;
 const fuente = texto => `<p class="kicker">Material de referencia · ${texto}</p>`;
 const contador = (actual,total) => `<p class="kicker">Paso ${actual + 1} de ${total}</p>`;
+const temaPractica = { filosofar:'mito', ramas:'ramas', amor:'amor' };
 const opcionesUnidad = unidad => `<div class="acciones">
- ${boton('Esquema', unidad.id)}
- ${boton('1. Reconocer', unidad.id + '/1')}
- ${boton('2. Aplicar', unidad.id + '/2')}
- ${boton('3. Escribir', unidad.id + '/3')}
+ ${boton('Practicar preguntas escritas','examen/' + temaPractica[unidad.id],true)}
+ ${boton('Ver apuntes de ' + unidad.titulo,unidad.id)}
  </div>`;
 
 const preguntasExamen = [
@@ -342,67 +345,71 @@ const recorridosExamen = {
 function guiaExamen() {
  return `<section class="panel guia-examen" aria-labelledby="titulo-examen">
  <h2 id="titulo-examen">Qué tengo que saber para el examen</h2>
- <p>Practica una pregunta de cada vez. Lee la ayuda, completa los huecos y abre el ejemplo cuando quieras comparar. Las preguntas se basan en las actividades de clase.</p>
+ <p>Elige un tema y practica una pregunta escrita cada vez. Cada pregunta tiene frases para empezar y una posible solución basada en lo trabajado en clase.</p>
  <div class="acciones">${Object.entries(recorridosExamen).map(([id,[titulo,banco]])=>
   boton(`${titulo} · ${banco.length} preguntas`,`examen/${id}`,id==='ramas')).join('')}</div>
+ <details><summary>Cómo ayudarle en casa</summary>
+ <ol><li>Leed la pregunta y mirad qué pide el primer paso.</li><li>Pedidle que complete una frase a la vez. Puede decirla primero en voz alta.</li><li>Abrid «Ver posible solución». Comprobad juntos si ha dado la idea y la razón que pide la pregunta.</li></ol></details>
  <h3>Para practicar la disertación</h3>
  <div class="acciones">${boton('Guion sobre el amor','taller/dis-amor')} ${boton('Guion sobre mito y logos','taller/dis-mito')}</div>
  </section>`;
 }
 
+const guionesBreves = {
+ ramas: [
+  ['Nombra la rama.','Esta pregunta pertenece a la rama de ___ .'],
+  ['Justifica tu elección. Di qué quiere averiguar la pregunta.','Pertenece a esta rama porque pregunta por ___ .']
+ ],
+ mito: [
+  [['Haz una pregunta con lo que se da por hecho.','¿Basta con ___ para ___?'],['Da tu respuesta y una razón.','Creo que ___ porque ___ .'],['Añade un caso que haga dudar.','Por ejemplo, puede ocurrir que ___ .']],
+  [['Di qué fenómeno se explica.','El relato intenta explicar ___ .'],['Cuenta cómo lo explica el mito.','Según el mito, ___ ocurre porque ___ .'],['Compara con una explicación científica.','Una explicación científica buscaría la causa en ___ .']],
+  [['Define la palabra.','El arjé es ___ .'],['Pon el ejemplo de un autor.','Para ___, ese principio era ___ .']],
+  [['Explica qué vio Burnet.','Burnet habla de ruptura porque ___ .'],['Di qué conserva Cornford.','Cornford dice que se mantiene ___, aunque cambia ___ .'],['Añade la idea de Jaeger.','Jaeger entiende ese cambio como ___ .']],
+  [['Di qué busca la razón instrumental.','La razón instrumental pregunta cómo ___ .'],['Añade qué pregunta la razón crítica.','La razón crítica pregunta si ___ y cómo afecta a ___ .']],
+  [['Responde y justifica.','Sí. Una explicación razonada puede equivocarse porque ___ .'],['Pon un ejemplo.','Por ejemplo, Tales propuso ___, pero hoy ___ .']],
+  [['Nombra la propuesta de Tales.','Tales propuso ___ .'],['Completa las otras dos propuestas.','Anaximandro propuso ___ y Anaxímenes propuso ___ .']],
+  [['Di qué intentan hacer los dos.','El mito y el logos intentan ___ .'],['Explica qué cambia.','La diferencia aparece cuando el logos busca ___ .']],
+  [['Explica qué se da por seguro.','La frase da por hecho que ___ .'],['Añade qué límite deja fuera.','Puede funcionar como un mito si se acepta sin preguntar por ___ .']]
+ ],
+ amor: [
+  [['Nombra el concepto de Schopenhauer.','Según Schopenhauer, detrás del enamoramiento está ___ .'],['Explica cómo actúa.','La persona siente que ___, pero en su teoría ese impulso está ligado a ___ .']],
+  [['Di qué comparten.','Los dos relacionan el amor con ___ .'],['Explica a Aristófanes y a Diotima por separado.','Para Aristófanes se busca ___ . Para Diotima se busca ___ .'],['Si piden otra diferencia, añade cómo cambia el deseo.','En Diotima, el deseo puede ___ .']],
+  [['Nombra la idea de Weil.','Para Weil, amar es ___ .'],['Aplica esa idea al caso.','En este caso, puedo ___ aunque ___ .']],
+  [['Explica qué pasó en el mito.','Zeus dividió a ___ .'],['Di qué representa buscar la otra mitad.','Buscar la otra mitad representa ___ .']],
+  [['Explica qué representa Penía.','Penía representa ___ .'],['Di qué aporta Poros.','Poros representa ___ . Por eso Eros siente que le falta algo y a la vez puede ___ .']],
+  [['Explica la idea con tus palabras.','El deseo se educa cuando aprendemos a valorar ___ .'],['Pon un ejemplo de cambio.','Al principio puedo fijarme en ___ . Después puedo valorar ___ .']],
+  [['Explica qué ayuda a entender la teoría.','Su teoría puede explicar ___ .'],['Señala un caso que cuesta explicar.','Una objeción es que no explica bien ___ . Por ejemplo, ___ .']],
+  [['Di en qué consiste escuchar.','Escuchar es intentar ___ .'],['Explica qué haces si no estás de acuerdo.','Puedo entender sus razones aunque ___ .']]
+ ],
+ conceptos: [
+  [['Nombra al autor y explica la idea.','El keynesianismo se asocia con ___ . Su idea es que ___ .'],['Aplica la idea a una situación.','Por ejemplo, durante una recesión, ___ puede ayudar a ___ .']],
+  [['Menciona el antecedente y explica la idea.','El neomalthusianismo parte de ideas de ___ y relaciona ___ con ___ .'],['Pon un ejemplo sencillo.','Por ejemplo, si aumenta la población de un lugar, podemos estudiar qué pasa con ___ .']]
+ ]
+};
+
 function practicarExamen(id) {
  const [titulo,banco] = recorridosExamen[id];
  const borradores = banco.map(()=>'');
- const correcciones = banco.map(() => ({ seleccion:'', fallos:new Set(), mensaje:'', resuelta:false }));
  let actual = 0;
- main.innerHTML = cabecera('Qué tengo que saber para el examen',titulo,'Lee, completa la frase y mira el ejemplo.') +
- boton('Volver a la guía de examen','inicio') + '<section id="pregunta-examen" class="panel"></section>';
+ main.innerHTML = cabecera('Preguntas de examen · Respuesta escrita',titulo,'Lee la pregunta, usa el guion y compara tu respuesta con el modelo.') +
+ boton('Volver a las preguntas de examen','inicio') + '<section id="pregunta-examen" class="panel"></section>';
  const panel = document.querySelector('#pregunta-examen');
  function mostrar(mover = true) {
-  const [tipo,pregunta,inicioFrase,ejemplo,ayuda,ramaCorrecta] = banco[actual];
-  const esRama = id === 'ramas';
-  const correccion = correcciones[actual];
-  const frase = inicioFrase.replaceAll('…',' ___');
+  const [tipo,pregunta,,ejemplo,ayuda] = banco[actual];
+  const pasos = id === 'ramas' ? guionesBreves.ramas : guionesBreves[id][actual];
+  const frase = pasos.map(([,texto])=>texto.replaceAll('___ .','___.')).join(' ');
   panel.innerHTML = `${contador(actual,banco.length)}<p class="kicker">${tipo}</p>
    <h2 id="consigna-examen" tabindex="-1">${pregunta}</h2>
-   <details><summary>Ver explicación fácil</summary><p>${ayuda}</p></details>
-   ${esRama ? `<form id="comprobar-rama">
-    <label for="elegir-rama"><strong>¿Qué rama eliges?</strong></label>
-    <select id="elegir-rama"><option value="">Elige una rama</option>${pistasRamas.map(([nombre],i)=>`<option value="${i}">${i === 0 ? "Metafísica / Ontología" : nombre}</option>`).join('')}</select>
-    <button type="submit" class="primario">Comprobar</button>
-    <p id="resultado-rama" class="estado" role="status"></p>
-   </form>` : ''}
-   <p><strong>Frase con huecos</strong><br>${frase}</p>
-   <button type="button" id="usar-examen">Poner la frase en mi respuesta</button>
+   <details><summary>Ver pista para entender la pregunta</summary><p>${ayuda}</p></details>
+   <h3>Cómo responder</h3>
+   <ol class="guion-respuesta">${pasos.map(([accion,texto])=>`<li><strong>${accion}</strong><p>«${texto.replaceAll('___ .','___.')}»</p></li>`).join('')}</ol>
+   <button type="button" id="usar-examen">Poner las frases en mi respuesta</button>
    <label class="campo-examen" for="texto-examen"><strong>Mi respuesta</strong></label><textarea id="texto-examen" aria-describedby="consigna-examen"></textarea>
-   <details id="ejemplo-examen" ${esRama && !correccion.resuelta && correccion.fallos.size < 2 ? 'hidden' : ''}><summary>Ver ejemplo corto</summary><p>${ejemplo}</p></details>
+   <details id="ejemplo-examen" class="modelo-respuesta"><summary>Ver posible solución</summary><p>${ejemplo}</p></details>
    <div class="acciones">
     ${actual>0?'<button type="button" id="prev-examen">Anterior</button>':''}
     ${actual<banco.length-1?'<button type="button" id="next-examen" class="primario">Siguiente pregunta</button>':boton('Terminar y volver a la guía','inicio',true)}
    </div>`;
-  if (esRama) {
-   const selector = panel.querySelector('#elegir-rama');
-   const resultado = panel.querySelector('#resultado-rama');
-   const ejemploDetalle = panel.querySelector('#ejemplo-examen');
-   selector.value = correccion.seleccion;
-   resultado.textContent = correccion.mensaje;
-   selector.onchange = () => { correccion.seleccion = selector.value; };
-   panel.querySelector('#comprobar-rama').onsubmit = evento => {
-    evento.preventDefault();
-    if (selector.value === '') {
-     correccion.mensaje = 'Elige una rama antes de comprobar.';
-    } else if (Number(selector.value) === ramaCorrecta) {
-     correccion.resuelta = true;
-     correccion.mensaje = '¡Correcto! ' + ejemplo;
-    } else {
-     correccion.fallos.add(selector.value);
-     correccion.mensaje = 'Prueba otra vez. Pista: ' + ayuda;
-     if (correccion.fallos.size >= 2) correccion.mensaje += ' Puedes probar otra opción o abrir el ejemplo.';
-    }
-    resultado.textContent = correccion.mensaje;
-    ejemploDetalle.hidden = !correccion.resuelta && correccion.fallos.size < 2;
-   };
-  }
   const area = panel.querySelector('textarea');
   area.value = borradores[actual];
   area.oninput = () => { borradores[actual] = area.value; };
@@ -458,7 +465,7 @@ const lecturaFacil = {
 
 function esquema(u) {
  main.innerHTML = cabecera(u.tema,u.titulo,u.resumen) + opcionesUnidad(u) +
- '<section class="panel"><h2>Lo imprescindible</h2><p>Abre una idea. Lee primero la explicación corta y después el ejemplo.</p>' +
+ '<section class="panel"><h2>Apuntes de apoyo</h2><p>Consulta estas fichas si necesitas entender una palabra de clase al preparar una respuesta.</p>' +
  u.fichas.map(([titulo,clave,exp,ej],i) => {
   const [facil,ejemploFacil] = lecturaFacil[u.id][i];
   return `<details class="ficha"><summary>${titulo}</summary>
@@ -468,51 +475,6 @@ function esquema(u) {
    <details><summary>Leer con más detalle</summary><p>${exp}</p><p>${ej}</p></details>
   </details>`;
  }).join('') + '</section>' + fuente(u.fuente);
-}
-function cuestionario(u,nivel) {
- const banco = u.preguntas.filter(q => q[0] === nivel);
- let actual = 0;
- let aciertos = new Set();
- main.innerHTML = cabecera(u.titulo,nivel === 1 ? 'Reconocer' : 'Aplicar','Elige una respuesta y comprueba la razón.') + opcionesUnidad(u) +
- '<section id="turno" class="panel"></section>';
- const turno = document.querySelector('#turno');
- function mostrar(mover = true) {
-  if (actual === banco.length) {
-   turno.innerHTML = `<h2 tabindex="-1">Práctica terminada</h2><p>${aciertos.size} de ${banco.length} preguntas resueltas correctamente durante el recorrido.</p><div class="acciones"><button type="button" id="repetir">Volver a practicar</button>${boton(nivel === 1 ? 'Pasar a aplicar' : 'Pasar a escribir',u.id + '/' + (nivel + 1),true)}</div>`;
-   turno.querySelector('button').onclick = () => { actual = 0; aciertos = new Set(); mostrar(); };
-   turno.querySelector('h2').focus();
-   return;
-  }
-  const [,pregunta,alternativas,clave,exp] = banco[actual];
-  turno.innerHTML = contador(actual,banco.length) +
-    `<form><fieldset><legend tabindex="-1">${pregunta}</legend>${alternativas.map((texto,i)=>
-     `<label class="opcion"><input type="radio" name="respuesta" value="${i}"> ${texto}</label>`).join('')}</fieldset>
-     <div class="acciones"><button class="primario" type="submit">Comprobar</button><button type="button" id="solucion">Ver solución</button><button type="button" id="siguiente" hidden>Siguiente</button></div>
-     <div class="estado" role="status"></div></form>`;
-  const form = turno.querySelector('form');
-  const estado = turno.querySelector('[role=status]');
-  const siguiente = turno.querySelector('#siguiente');
-  const solucion = turno.querySelector('#solucion');
-  function resolver(mensaje) {
-   estado.textContent = mensaje + ' ' + exp;
-   siguiente.hidden = false;
-  }
-  form.onsubmit = evento => {
-   evento.preventDefault();
-   const marcada = form.querySelector('input:checked');
-   if (!marcada) { estado.textContent = 'Elige una opción antes de comprobar.'; return; }
-   if (Number(marcada.value) === clave) {
-    aciertos.add(actual);
-    resolver('Correcto.');
-   } else {
-    estado.textContent = 'Revisa tu elección. Pista: ' + exp + ' Prueba otra opción.';
-   }
-  };
-  solucion.onclick = () => resolver('Respuesta: ' + alternativas[clave] + '.');
-  siguiente.onclick = () => { actual++; mostrar(); };
-  if (mover) turno.querySelector('legend').focus();
- }
- mostrar(false);
 }
 function escribir(u) {
  main.innerHTML = cabecera(u.titulo,'Escribir una respuesta','Formula tu respuesta y compárala con el modelo.') + opcionesUnidad(u) +
@@ -574,7 +536,7 @@ function taller(t) {
    <label for="texto-final"><strong>Texto reunido</strong></label>
    <textarea id="texto-final" readonly rows="11"></textarea>
    ${t.rango ? `<p>${palabras(borrador.join(' '))} palabras. Extensión de la tarea: ${t.rango.join('–')} palabras.</p>` : ''}
-   <details><summary>Ver modelo completo</summary>${t.pasos.map(([nombre,,modelo])=>`<h3>${nombre}</h3><p>${modelo}</p>`).join('')}</details>
+   <details class="modelo-respuesta"><summary>Ver posible solución completa</summary>${t.pasos.map(([nombre,,modelo])=>`<h3>${nombre}</h3><p>${modelo}</p>`).join('')}</details>
    <fieldset><legend>Lista de revisión</legend>${t.pasos.map(([nombre])=>`<label class="opcion"><input type="checkbox"> He revisado este apartado · ${nombre}</label>`).join('')}</fieldset>
    <p>Para guardar una copia, selecciona el texto y cópialo.</p>
    <button type="button" data-prev>Volver al último paso</button>`;
@@ -587,7 +549,7 @@ function taller(t) {
      ${apoyo ? `<div class="estado"><p><strong>Frase para copiar</strong><br>${apoyo[1]}</p><p><strong>Ejemplo corto</strong><br>${apoyo[2]}</p><p><strong>Palabras que puedes usar</strong><br>${apoyo[3]}</p></div><button type="button" id="usar-frase">Poner la frase en mi borrador</button>` : ''}
      <label for="texto-paso"><strong>Mi borrador</strong></label>
      <textarea id="texto-paso" aria-describedby="paso-titulo consigna-paso"></textarea>
-     <details><summary>Ver ejemplo de este paso</summary><p>${modelo}</p></details>
+     <details class="modelo-respuesta"><summary>Ver posible solución de este paso</summary><p>${modelo}</p></details>
      <div class="acciones">
       ${actual ? '<button type="button" data-prev>Anterior</button>' : ''}
       <button type="button" class="primario" data-next>${actual + 1 === t.pasos.length ? 'Revisar el conjunto' : 'Siguiente paso'}</button>
@@ -628,7 +590,7 @@ function ruta(mover = false) {
  const u = unidades.find(item => item.id === seccion);
  let activa = seccion;
  if (u) {
-  if (sub === '1' || sub === '2') cuestionario(u,Number(sub));
+  if (sub === '1' || sub === '2') practicarExamen(temaPractica[u.id]);
   else if (sub === '3') escribir(u);
   else esquema(u);
  } else if (seccion === 'examen' && Object.hasOwn(recorridosExamen,sub)) {
