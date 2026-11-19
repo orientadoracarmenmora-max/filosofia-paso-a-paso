@@ -323,11 +323,15 @@ function leerEnVozAlta(texto,estado) {
   if (elegida) locucion.voice = elegida;
   locucion.lang = elegida?.lang || 'es-ES';
   locucion.rate = 0.88;
+  const sigueActiva = () => lecturaActiva === lectura && lectura.locucion === locucion;
   locucion.onstart = () => {
-   if (lecturaActiva === lectura) estado.textContent = elegida ? 'Leyendo con ' + elegida.name + '.' : 'Leyendo.';
+   if (!sigueActiva()) return;
+   window.clearTimeout(lectura.espera);
+   estado.textContent = elegida ? 'Leyendo con ' + elegida.name + '.' : 'Leyendo.';
   };
   locucion.onend = () => {
-   if (lecturaActiva !== lectura) return;
+   if (!sigueActiva()) return;
+   window.clearTimeout(lectura.espera);
    posicion++;
    if (posicion === frases.length) {
     lecturaActiva = undefined;
@@ -336,11 +340,26 @@ function leerEnVozAlta(texto,estado) {
     lectura.espera = window.setTimeout(leerFrase,pausaEntreFrases);
    }
   };
-  locucion.onerror = () => {
-   if (lecturaActiva !== lectura) return;
-   lecturaActiva = undefined;
-   estado.textContent = elegida ? 'No se ha podido reproducir ' + elegida.name + '.' : 'No se ha podido reproducir la voz de este navegador.';
-  };
+  function gestionarFallo() {
+   if (!sigueActiva()) return;
+   window.clearTimeout(lectura.espera);
+   const local = /google/i.test(elegida?.name || '') &&
+    (voces.find(v=>/^es[-_]ES$/i.test(v.lang) && v.localService)
+      || voces.find(v=>/^es\b/i.test(v.lang) && v.localService));
+   if (local) {
+    lectura.locucion = undefined;
+    motorVoz.cancel();
+    estado.textContent = 'Google español no responde. Probando con ' + local.name + '.';
+    elegida = local;
+    leerFrase();
+   } else {
+    lecturaActiva = undefined;
+    motorVoz.cancel();
+    estado.textContent = elegida ? 'No se ha podido reproducir ' + elegida.name + '.' : 'No se ha podido reproducir la voz de este navegador.';
+   }
+  }
+  locucion.onerror = gestionarFallo;
+  lectura.espera = window.setTimeout(gestionarFallo,3500);
   motorVoz.speak(locucion);
  }
  function empezar() {
