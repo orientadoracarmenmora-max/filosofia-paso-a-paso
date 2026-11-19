@@ -275,11 +275,89 @@ const navTema = (id,actual) => {
  <p><a href="#inicio">Inicio</a> <span aria-hidden="true">›</span> ${zona.titulo}</p>
  <div class="acciones">${enlaces.map(([etiqueta,destino,seccion])=>`<a class="boton ${seccion===actual?'primario':''}" href="#${destino}" ${seccion===actual?'aria-current="page"':''}>${etiqueta}</a>`).join('')}</div></nav>`;
 };
-const vozDisponible = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+const motorVoz = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window
+ ? window.speechSynthesis : null;
+const segmentador = typeof Intl.Segmenter === 'function'
+ ? new Intl.Segmenter('es', { granularity:'sentence' }) : null;
+const pausaEntreFrases = 450;
 let lecturaActiva;
+let voces = [];
+function actualizarVoces() {
+ voces = motorVoz.getVoices();
+}
+if (motorVoz) {
+ actualizarVoces();
+ motorVoz.addEventListener('voiceschanged',actualizarVoces);
+}
+function googleEspanol() {
+ return voces.find(v=>/^es[-_]ES$/i.test(v.lang) && /google/i.test(v.name));
+}
+function vozAlternativa() {
+ return voces.find(v=>/^es\b/i.test(v.lang) && /google/i.test(v.name))
+  || voces.find(v=>/^es[-_]ES$/i.test(v.lang) && v.localService)
+  || voces.find(v=>/^es[-_]ES$/i.test(v.lang)) || voces.find(v=>/^es\b/i.test(v.lang));
+}
 function detenerVoz() {
- if (vozDisponible) window.speechSynthesis.cancel();
+ const lectura = lecturaActiva;
  lecturaActiva = undefined;
+ if (!lectura) return;
+ window.clearTimeout(lectura.espera);
+ if (lectura.alCargar) motorVoz.removeEventListener('voiceschanged',lectura.alCargar);
+ motorVoz.cancel();
+ lectura.estado.textContent = 'Audio detenido.';
+}
+function leerEnVozAlta(texto,estado) {
+ detenerVoz();
+ actualizarVoces();
+ const frases = (segmentador
+  ? Array.from(segmentador.segment(texto), item=>item.segment)
+  : texto.split(/(?<=[.!?])\s+/)).map(frase=>frase.trim()).filter(Boolean);
+ const lectura = { estado, espera:0 };
+ lecturaActiva = lectura;
+ let elegida;
+ let posicion = 0;
+ function leerFrase() {
+  if (lecturaActiva !== lectura) return;
+  const locucion = new SpeechSynthesisUtterance(frases[posicion]);
+  lectura.locucion = locucion;
+  if (elegida) locucion.voice = elegida;
+  locucion.lang = elegida?.lang || 'es-ES';
+  locucion.rate = 0.88;
+  locucion.onstart = () => {
+   if (lecturaActiva === lectura) estado.textContent = elegida ? 'Leyendo con ' + elegida.name + '.' : 'Leyendo.';
+  };
+  locucion.onend = () => {
+   if (lecturaActiva !== lectura) return;
+   posicion++;
+   if (posicion === frases.length) {
+    lecturaActiva = undefined;
+    estado.textContent = elegida ? 'Lectura terminada con ' + elegida.name + '.' : 'Lectura terminada.';
+   } else {
+    lectura.espera = window.setTimeout(leerFrase,pausaEntreFrases);
+   }
+  };
+  locucion.onerror = () => {
+   if (lecturaActiva !== lectura) return;
+   lecturaActiva = undefined;
+   estado.textContent = elegida ? 'No se ha podido reproducir ' + elegida.name + '.' : 'No se ha podido reproducir la voz de este navegador.';
+  };
+  motorVoz.speak(locucion);
+ }
+ function empezar() {
+  if (lecturaActiva !== lectura) return;
+  window.clearTimeout(lectura.espera);
+  if (lectura.alCargar) motorVoz.removeEventListener('voiceschanged',lectura.alCargar);
+  elegida = googleEspanol() || vozAlternativa();
+  leerFrase();
+ }
+ if (googleEspanol()) {
+  empezar();
+ } else {
+  estado.textContent = 'Buscando Google español…';
+  lectura.alCargar = () => { if (googleEspanol()) empezar(); };
+  motorVoz.addEventListener('voiceschanged',lectura.alCargar);
+  lectura.espera = window.setTimeout(empezar,1100);
+ }
 }
 function controlesAudio(contenedor,texto,etiqueta) {
  const zona = document.createElement('div');
@@ -293,26 +371,8 @@ function controlesAudio(contenedor,texto,etiqueta) {
   estado.textContent = 'Audio detenido.';
  };
  zona.querySelector('[data-escuchar]').onclick = () => {
-  if (!vozDisponible) { estado.textContent = 'Este navegador no ofrece lectura en voz alta.'; return; }
-  detenerVoz();
-  const locucion = new SpeechSynthesisUtterance(texto);
-  const voces = window.speechSynthesis.getVoices();
-  const voz = voces.find(v=>/^es[-_]ES$/i.test(v.lang) && /google/i.test(v.name))
-   || voces.find(v=>/^es\b/i.test(v.lang) && /google/i.test(v.name))
-   || voces.find(v=>/^es[-_]ES$/i.test(v.lang) && v.localService)
-   || voces.find(v=>/^es[-_]ES$/i.test(v.lang)) || voces.find(v=>/^es\b/i.test(v.lang));
-  if (voz) locucion.voice = voz;
-  locucion.lang = voz?.lang || 'es-ES';
-  locucion.rate = 0.88;
-  lecturaActiva = locucion;
-  estado.textContent = voz ? 'Leyendo con ' + voz.name + '.' : 'Leyendo.';
-  locucion.onend = () => {
-   if (lecturaActiva === locucion) { lecturaActiva = undefined; estado.textContent = 'Lectura terminada.'; }
-  };
-  locucion.onerror = () => {
-   if (lecturaActiva === locucion) { lecturaActiva = undefined; estado.textContent = 'No se ha podido reproducir la voz de este navegador.'; }
-  };
-  window.speechSynthesis.speak(locucion);
+  if (!motorVoz) { estado.textContent = 'Este navegador no ofrece lectura en voz alta.'; return; }
+  leerEnVozAlta(texto,estado);
  };
 }
 
