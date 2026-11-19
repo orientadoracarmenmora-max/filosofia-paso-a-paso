@@ -73,6 +73,9 @@ select{font:inherit;color:inherit;background:white;border:1px solid #6d8275;bord
 .guion-respuesta li{margin-block:.5rem}
 .guion-respuesta p{margin:.2rem 0 .5rem}
 .modelo-respuesta{color:#842025;background:#fff3f0;border:1px solid #d7a4a0;border-radius:.6rem;padding:.45rem .75rem;margin:1rem 0}
+.lista-tema{padding-left:1.5rem}
+.lista-tema li{padding-bottom:.45rem}
+.lista-tema button{text-align:left}
 </style>
 
 </head>
@@ -255,10 +258,10 @@ const opcionesUnidad = unidad => `<div class="acciones">
 
 const preguntasExamen = [
   ['Reconocer una rama','¿A qué rama pertenece «¿Podemos confiar en los sentidos?»? Justifica.','Pertenece a… porque pregunta por…','Pertenece a la epistemología porque examina si los sentidos son una fuente fiable de conocimiento.'],
-  ['Cuestionar una idea','Pon en duda «Si la mayoría lo cree, probablemente sea verdad».','¿Basta con…? Pienso que… porque… Una objeción sería…','¿Basta con que muchos lo crean? Un rumor puede ser falso aunque muchos lo repitan. Si la mayoría ha comprobado los hechos, su acuerdo sí aporta una razón.'],
-  ['Interpretar y comparar mito y logos','¿Cómo explica el mito de Deméter las estaciones? ¿En qué se diferencia de una explicación razonada?','El mito explica… mediante… Una explicación razonada busca…','El mito relaciona el regreso de Perséfone con el crecimiento de la vegetación. Una explicación razonada busca causas examinables, como la variación de luz debida a la inclinación del eje terrestre.'],
+  ['Cuestionar una idea','Pon en duda «Si la mayoría lo cree, probablemente sea verdad».','¿Basta con…? Pienso que… porque… Una objeción sería…','«Mayoría» significa que lo cree más gente. Pregunto: ¿basta con que muchos lo crean para que sea verdad? Creo que no, porque muchas personas pueden repetir un rumor sin comprobarlo. Una objeción sería que el acuerdo sí cuenta si esas personas han comprobado los hechos por separado.'],
+  ['Interpretar y comparar mito y logos','¿Cómo explica el mito de Deméter las estaciones? ¿En qué se diferencia de una explicación razonada?','El mito explica… mediante… Una explicación razonada busca…','El relato explica las estaciones. Cuando Hades se lleva a Perséfone, Deméter se entristece y los campos dejan de producir. Cuando su hija regresa, vuelve a crecer la vegetación. En el mito, la causa son las acciones y emociones de los dioses. Una explicación científica estudia la inclinación del eje de la Tierra y cómo cambia la luz que recibe cada hemisferio.'],
   ['Definir el arjé','¿Qué es el arjé? Pon un ejemplo.','El arjé es… Para… ese principio era…','El arjé es el principio originario o fundamento común de la naturaleza. Tales propuso el agua.'],
-  ['Comparar interpretaciones','¿Fue el paso del mito al logos una ruptura o una transformación?','Burnet destaca… Cornford sostiene… Jaeger lo sitúa…','Burnet destaca la ruptura al buscar causas naturales. Cornford señala que se conservó la pregunta por el origen. Jaeger entiende el cambio como parte de un proceso cultural gradual.'],
+  ['Comparar interpretaciones','¿Fue el paso del mito al logos una ruptura o una transformación?','Burnet destaca… Cornford sostiene… Jaeger lo sitúa…','Burnet habla de ruptura porque se empiezan a buscar causas naturales. Cornford cree que algunas preguntas del mito se mantienen y reciben otras respuestas. Jaeger sitúa el cambio en un proceso cultural gradual. Me convence la idea de transformación porque tanto el mito como los primeros filósofos preguntan por el origen del mundo, aunque lo explican de distinta manera.'],
   ['Aplicar la razón crítica','¿Qué preguntaría la razón crítica ante un sistema de vigilancia?','La razón instrumental pregunta cómo… La crítica pregunta si…','Una cosa es calcular cómo vigilar con eficacia. Examinar si la vigilancia se justifica y qué efectos tiene sobre la libertad es propio de la razón crítica.'],
   ['Explicar una idea de un autor del amor','¿Cómo explica Schopenhauer que nos enamoremos?','Según… el enamoramiento se explica por…','Según Schopenhauer, parece que elegimos libremente. Su teoría atribuye la atracción a la Voluntad de vivir, orientada a la reproducción. Repasa también unidad perdida, Eros y Belleza en sí, y atención.'],
   ['Comparar autores del amor','¿En qué se parecen y se diferencian Aristófanes y Diotima?','Ambos… Para Aristófanes… Para Diotima…','Ambos relacionan amor y falta. Aristófanes habla de recuperar la unidad perdida. Diotima habla de buscar el bien y la belleza de forma duradera y de educar el deseo.'],
@@ -316,7 +319,7 @@ const explicacionesExamen = [
  'Escribe primero tu respuesta en una frase. Añade «porque» y una razón.'
 ];
 const adicionalesExamen = [
- ['Mito y logos','¿Puede una explicación razonada estar equivocada?','Sí, porque una explicación razonada se puede ___ y se puede ___.','Sí. La idea de Tales de que todo procede del agua podía discutirse, aunque hoy no la aceptemos.','Una explicación razonada ofrece razones. Esas razones se pueden poner a prueba y corregir.'],
+ ['Mito y logos','¿Puede una explicación razonada estar equivocada?','Sí, porque una explicación razonada se puede ___ y se puede ___.','Sí. Razonar permite dar motivos que otras personas pueden examinar. Esos motivos pueden resultar insuficientes. Por ejemplo, Tales propuso que todo procede del agua. Su propuesta se podía discutir, aunque hoy no la consideremos correcta.','Una explicación razonada ofrece razones. Esas razones se pueden poner a prueba y corregir.'],
  ['Arjé','¿Qué principio propusieron Tales, Anaximandro y Anaxímenes?','Tales propuso ___. Anaximandro, ___. Anaxímenes, ___.','Tales propuso el agua. Anaximandro, el ápeiron. Anaxímenes, el aire.','Los tres se hacen la misma pregunta y dan tres respuestas. Ápeiron significa lo ilimitado e indeterminado.'],
  ['Mito y logos','¿En qué se parecen el mito y el logos?','Los dos intentan ___. Cambia la forma de ___.','Los dos intentan explicar el mundo. El logos busca razones que otras personas puedan discutir.','Piensa en un mismo terremoto explicado primero por un relato y luego por causas naturales.'],
  ['Razón crítica','¿Por qué «La tecnología resolverá todos los problemas» puede funcionar como un mito actual?','Puede funcionar como un mito si se acepta que ___ sin examinar ___.','Puede funcionar como mito si se da por hecho que todo avance técnico es bueno. Así se dejan fuera problemas como la pérdida de privacidad.','Adorno y Horkheimer señalan que la razón puede volverse dogmática cuando da algo por seguro y deja de examinar sus límites.'],
@@ -327,11 +330,18 @@ const adicionalesExamen = [
  ['El amor','¿Qué diferencia hay entre escuchar y darle la razón a alguien?','Escuchar es intentar ___. Aun así, puedo ___.','Escuchar es intentar entender por qué piensa así. Aun así, puedo seguir pensando de otra manera.','En Simone Weil, prestar atención es dejar espacio a lo que el otro piensa y necesita.'],
  ['Investigación','¿Qué es el neomalthusianismo? Pon un ejemplo.','Parte de ideas de ___. Relaciona el crecimiento de la población con ___. Por ejemplo, ___.','Parte de ideas de Malthus desarrolladas después por distintas corrientes. Relaciona población y recursos. Podemos estudiar si una población mayor aumenta la demanda de agua.','Piensa en cuántas personas necesitan un recurso y cuánto hay disponible. La distribución y el consumo por persona también influyen.']
 ];
+const ampliacionTemaUno = [
+ ['El nacimiento de la filosofía','¿Cuándo surgió la filosofía griega? Explica dos circunstancias que ayudaron.','','Surgió en Grecia entre los siglos VII y VI a. C. El comercio y la navegación permitieron conocer costumbres y explicaciones de otros pueblos. En la polis, el debate público favoreció que las decisiones se defendieran con razones.','Di primero cuándo y dónde. Después elige dos circunstancias y explica cómo ayudó cada una.'],
+ ['Qué significa filosofar','¿Qué significa filosofar? Explica qué es problematizar con un ejemplo.','','Filosofar es examinar una idea y buscar razones. Problematizar es convertir algo que damos por hecho en una pregunta. Por ejemplo, si alguien dice «Soy libre cuando hago lo que quiero», puedo preguntar «¿Soy libre si hago algo que otros me han convencido de hacer?».','Empieza con una idea que parezca evidente. Haz una pregunta que nos obligue a pensarla.'],
+ ['Adorno y Horkheimer','¿Por qué dicen Adorno y Horkheimer que el mito contiene algo de razón y que la razón puede volver a ser mítica?','','El mito intenta explicar el mundo y reducir el miedo. Por ejemplo, da una causa a una tormenta. La razón puede volver a funcionar como un mito cuando acepta una idea sin examinarla. Pasa si damos por hecho que todo lo eficaz es también correcto.','La pregunta tiene dos partes. Primero explica qué intenta hacer el mito. Después explica qué pasa cuando dejamos de examinar una idea.'],
+ ['Mitos de nuestro tiempo','Analiza «Comprar más nos hace más felices» como posible mito actual. ¿Qué promete y qué deja fuera?','','La frase promete que comprar más trae felicidad. Puede resultar convincente porque comprar algo da satisfacción durante un rato. Deja fuera que la felicidad también depende de vínculos y experiencias. Funciona como mito si se acepta como algo evidente y se deja de preguntar cuándo se cumple.','Explica qué promete, por qué puede convencer y qué parte de la realidad falta.']
+];
 const recorridosExamen = {
  ramas: ['Ramas de la filosofía',ramasExamen],
- mito: ['Tema 1 · Mito y logos',[
+ mito: ['Tema 1 · ¿Qué significa filosofar?',[
   ...preguntasExamen.slice(1,6).map((q,i)=>[...q,explicacionesExamen[i+1]]),
-  ...adicionalesExamen.slice(0,4)
+  ...adicionalesExamen.slice(0,4),
+  ...ampliacionTemaUno
  ]],
  amor: ['Tema 2 · El amor',[
   ...preguntasExamen.slice(6,9).map((q,i)=>[...q,explicacionesExamen[i+6]]),
@@ -361,15 +371,20 @@ const guionesBreves = {
   ['Justifica tu elección. Di qué quiere averiguar la pregunta.','Pertenece a esta rama porque pregunta por ___ .']
  ],
  mito: [
-  [['Haz una pregunta con lo que se da por hecho.','¿Basta con ___ para ___?'],['Da tu respuesta y una razón.','Creo que ___ porque ___ .'],['Añade un caso que haga dudar.','Por ejemplo, puede ocurrir que ___ .']],
-  [['Di qué fenómeno se explica.','El relato intenta explicar ___ .'],['Cuenta cómo lo explica el mito.','Según el mito, ___ ocurre porque ___ .'],['Compara con una explicación científica.','Una explicación científica buscaría la causa en ___ .']],
+  [['Haz una pregunta con lo que se da por hecho.','¿Basta con ___ para ___?'],['Aclara la palabra importante.','Con ___ me refiero a ___ .'],['Da tu respuesta y una razón.','Creo que ___ porque ___ .'],['Plantea una objeción.','Alguien podría decir que ___ .']],
+  [['Di qué fenómeno se explica.','El relato intenta explicar ___ .'],['Nombra a los dioses y explica qué hacen o qué sienten.','Cuando Hades ___, Deméter siente ___ y en los campos ___ .'],['Compara con una explicación científica.','Una explicación científica buscaría la causa en ___ .']],
   [['Define la palabra.','El arjé es ___ .'],['Pon el ejemplo de un autor.','Para ___, ese principio era ___ .']],
-  [['Explica qué vio Burnet.','Burnet habla de ruptura porque ___ .'],['Di qué conserva Cornford.','Cornford dice que se mantiene ___, aunque cambia ___ .'],['Añade la idea de Jaeger.','Jaeger entiende ese cambio como ___ .']],
+  [['Explica qué vio Burnet.','Burnet habla de ruptura porque ___ .'],['Di qué conserva Cornford.','Cornford dice que se mantiene ___, aunque cambia ___ .'],['Añade la idea de Jaeger.','Jaeger entiende ese cambio como ___ .'],['Si te piden elegir, justifica tu respuesta.','Me convence más ___ porque ___ .']],
   [['Di qué busca la razón instrumental.','La razón instrumental pregunta cómo ___ .'],['Añade qué pregunta la razón crítica.','La razón crítica pregunta si ___ y cómo afecta a ___ .']],
   [['Responde y justifica.','Sí. Una explicación razonada puede equivocarse porque ___ .'],['Pon un ejemplo.','Por ejemplo, Tales propuso ___, pero hoy ___ .']],
   [['Nombra la propuesta de Tales.','Tales propuso ___ .'],['Completa las otras dos propuestas.','Anaximandro propuso ___ y Anaxímenes propuso ___ .']],
   [['Di qué intentan hacer los dos.','El mito y el logos intentan ___ .'],['Explica qué cambia.','La diferencia aparece cuando el logos busca ___ .']],
-  [['Explica qué se da por seguro.','La frase da por hecho que ___ .'],['Añade qué límite deja fuera.','Puede funcionar como un mito si se acepta sin preguntar por ___ .']]
+  [['Explica qué se da por seguro.','La frase da por hecho que ___ .'],['Añade qué límite deja fuera.','Puede funcionar como un mito si se acepta sin preguntar por ___ .']],
+  [['Sitúa el tema en el tiempo y en el lugar.','La filosofía griega surgió en ___, entre ___ .'],['Explica dos circunstancias.','Un factor fue ___ porque ___ . Otro fue ___ porque ___ .']],
+  [['Explica el concepto.','Filosofar es ___ . Problematizar significa ___ .'],['Transforma una afirmación en pregunta.','Si alguien dice «___», puedo preguntar «___».']],
+  [['Di qué intenta hacer el mito.','El mito intenta ___ . Por ejemplo, ___ .'],['Explica cuándo la razón se vuelve mítica.','La razón puede funcionar como mito cuando ___ . Por ejemplo, ___ .']],
+  [['Di qué promete la frase.','Esta idea promete ___ . Puede convencer porque ___ .'],['Explica qué deja fuera.','Deja fuera ___ . Funciona como mito cuando ___ .']]
+
  ],
  amor: [
   [['Nombra el concepto de Schopenhauer.','Según Schopenhauer, detrás del enamoramiento está ___ .'],['Explica cómo actúa.','La persona siente que ___, pero en su teoría ese impulso está ligado a ___ .']],
@@ -387,16 +402,34 @@ const guionesBreves = {
  ]
 };
 
+const ordenTemaUno = [0,1,7,5,3,2,6,9,4,8,10,11,12];
+const gruposTemaUno = [
+ ['Empieza por los ejercicios que mandaron',0,5],
+ ['Si ya has practicado lo anterior, prepara estas otras preguntas',5,13]
+];
+
+function indiceTemaUno(banco) {
+ return `<section class="panel"><h2>Por dónde empezar</h2>
+ <p>La hoja de ejercicios da prioridad a poner en duda una idea, interpretar un mito, comparar mito y logos, explicar el paso de uno a otro y preparar una disertación. Estas preguntas son ensayos basados en esas tareas y en el resto del tema.</p>
+ ${gruposTemaUno.map(([nombre,desde,hasta])=>`<details ${desde===0?'open':''}><summary>${nombre}</summary><ol class="lista-tema" start="${desde+1}">
+ ${ordenTemaUno.slice(desde,hasta).map((i,j)=>`<li><button type="button" data-pregunta-tema="${desde+j}">${banco[i][1]}</button></li>`).join('')}
+ ${desde===0?`<li>${boton('Ensayar la disertación del paso del mito al logos','taller/dis-mito')}</li>`:''}
+ </ol></details>`).join('')}</section>`;
+}
+
 function practicarExamen(id) {
  const [titulo,banco] = recorridosExamen[id];
+ const esTemaUno = id === 'mito';
+ const orden = esTemaUno ? ordenTemaUno : banco.map((_,i)=>i);
  const borradores = banco.map(()=>'');
  let actual = 0;
  main.innerHTML = cabecera('Preguntas de examen · Respuesta escrita',titulo,'Lee la pregunta, usa el guion y compara tu respuesta con el modelo.') +
- boton('Volver a las preguntas de examen','inicio') + '<section id="pregunta-examen" class="panel"></section>';
+ boton('Volver a las preguntas de examen','inicio') + (esTemaUno ? indiceTemaUno(banco) : '') + '<section id="pregunta-examen" class="panel"></section>';
  const panel = document.querySelector('#pregunta-examen');
  function mostrar(mover = true) {
-  const [tipo,pregunta,,ejemplo,ayuda] = banco[actual];
-  const pasos = id === 'ramas' ? guionesBreves.ramas : guionesBreves[id][actual];
+  const numero = orden[actual];
+  const [tipo,pregunta,,ejemplo,ayuda] = banco[numero];
+  const pasos = id === 'ramas' ? guionesBreves.ramas : guionesBreves[id][numero];
   const frase = pasos.map(([,texto])=>texto.replaceAll('___ .','___.')).join(' ');
   panel.innerHTML = `${contador(actual,banco.length)}<p class="kicker">${tipo}</p>
    <h2 id="consigna-examen" tabindex="-1">${pregunta}</h2>
@@ -426,6 +459,9 @@ function practicarExamen(id) {
   const siguiente = panel.querySelector('#next-examen');
   if (siguiente) siguiente.onclick = () => { actual++; mostrar(); };
   if (mover) panel.querySelector('h2').focus();
+ }
+ for (const botonPregunta of main.querySelectorAll('[data-pregunta-tema]')) {
+  botonPregunta.onclick = () => { actual = Number(botonPregunta.dataset.preguntaTema); mostrar(); };
  }
  mostrar(false);
 }
