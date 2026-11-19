@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#18372f">
+<title>Filosofía paso a paso · 1.º de Bachillerato</title>
+<style>
+:root{font-size:100%;color:#203831;background:#f7f5ed;font-family:system-ui,sans-serif;line-height:1.6;--verde:#18372f;--acento:#e7bd76;--papel:#fffefa;--borde:#c6cec2}
+:root.grande{font-size:120%}
+*{box-sizing:border-box}
+body{margin:0}
+.marco{width:min(100% - 2rem,68rem);margin-inline:auto}
+.cabecera{color:#fffefa;background:var(--verde)}
+.barra,.navegacion,footer,.acciones{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap}
+.barra{justify-content:space-between;padding-block:1rem}
+.marca{display:flex;gap:.6rem;align-items:center;text-decoration:none;font-weight:760}
+.marca span{font-family:Georgia,serif;background:var(--acento);color:#24372e;border-radius:50%;display:grid;place-items:center;width:2.25rem;height:2.25rem;font-size:1.4rem}
+a{color:inherit;text-underline-offset:.22em}
+.navegacion{padding-block:.25rem .65rem}
+.navegacion a{display:inline-flex;align-items:center;min-height:2.75rem;padding:.35rem .7rem;border-radius:.45rem;text-decoration:none}
+.navegacion a[aria-current=page],.navegacion a:hover{background:#36584c;text-decoration:underline}
+main{min-height:60vh;padding-block:2rem 3rem}
+:focus-visible{outline:3px solid #9e4300;outline-offset:4px}
+.cabecera :focus-visible{outline-color:#ffe3a6}
+.salto{position:absolute;left:.5rem;top:-6rem;background:white;padding:.5rem;z-index:9}
+.salto:focus{top:.5rem}
+h1,h2,h3,p{margin:0 0 .65em}
+h1,h2{font-family:Georgia,serif;font-weight:normal;line-height:1.12}
+h1{font-size:clamp(2.35rem,6vw,4.5rem);letter-spacing:-.035em;margin-bottom:.25em}
+h2{font-size:clamp(1.6rem,4vw,2.35rem)}
+h3{line-height:1.3}
+p,li{max-width:72ch}
+.hero{background:#e5ece0;border:1px solid var(--borde);border-radius:1.55rem;padding:clamp(1.3rem,5vw,3.5rem);margin-bottom:1.7rem}
+.hero p:last-child{margin-bottom:0}
+.kicker{font-weight:750;font-size:.9rem;color:#395449}
+.bajada{font-size:1.12rem}
+.rejilla{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:1rem;margin-block:1rem}
+.tarjeta,.panel{background:var(--papel);border:1px solid var(--borde);border-radius:1rem;padding:1.15rem}
+.tarjeta{display:flex;flex-direction:column;align-items:flex-start;border-top:5px solid #507364}
+.tarjeta h2,.tarjeta h3{font-size:1.4rem}
+.tarjeta a{margin-top:auto}
+.panel{margin-block:1rem;max-width:55rem}
+details{border-top:1px solid var(--borde);padding:.45rem 0;margin-block:.35rem}
+summary{cursor:pointer;font-weight:720;padding:.52rem .3rem;min-height:2.75rem}
+details p{padding-inline:.3rem}
+.clave{font-weight:720}
+.boton,button{font:inherit;font-weight:730;line-height:1.3;background:#fffefa;color:var(--verde);border:1px solid #6d8275;border-radius:.55rem;padding:.57rem .85rem;min-height:2.75rem;cursor:pointer}
+.boton{display:inline-flex;align-items:center;text-decoration:none}
+.primario{background:var(--verde);color:white}
+.boton:hover,button:hover{box-shadow:inset 0 0 0 2px #a99976}
+button:disabled{opacity:.58;cursor:default}
+button[aria-pressed=true]{background:var(--acento);color:var(--verde)}
+.opcion{display:flex;align-items:center;gap:.7rem;min-height:3rem;background:#edf0e8;border-radius:.5rem;padding:.45rem .7rem;margin:.45rem 0;cursor:pointer}
+input[type=radio],input[type=checkbox]{width:1.2rem;height:1.2rem;accent-color:#265745;flex:none}
+fieldset{border:0;margin:0 0 1rem;padding:0;min-inline-size:0}
+legend{font-size:1.16rem;font-weight:740;margin-bottom:.5rem}
+.estado:not(:empty){background:#e7eee0;border-left:4px solid #547858;padding:.7rem 1rem;margin:.9rem 0}
+textarea{display:block;width:100%;font:inherit;color:inherit;background:#fff;border:1px solid #6d8275;border-radius:.55rem;padding:.75rem;min-height:7rem;resize:vertical;margin:.45rem 0 .85rem}
+.pasos{padding-left:1.5rem}
+.pasos li{padding-block:.2rem}
+footer{justify-content:space-between;border-top:1px solid var(--borde);padding-block:1rem 2rem}
+[hidden]{display:none!important}
+@media(max-width:35rem){.marco{width:calc(100% - 1rem)}.navegacion{gap:.15rem}main{padding-top:1rem}}
+@media print{.cabecera,.salto,footer,button,.acciones{display:none!important}.panel{break-inside:avoid}body{background:white}}
+select{font:inherit;color:inherit;background:white;border:1px solid #6d8275;border-radius:.5rem;min-height:2.75rem;margin:.3rem .6rem .9rem;padding:.35rem}
+#respuesta h2{font-family:inherit;font-size:1.25rem;font-weight:740}
+.ficha+.ficha{border-top:1px solid var(--borde);margin-top:1rem;padding-top:1rem}
+.ficha details{border:0;padding:0;margin-bottom:0}
+.ficha h3{margin-bottom:.25rem}
+</style>
+
+</head>
+<body>
+<a class="salto" href="#contenido">Saltar al contenido</a>
+<header class="cabecera">
+ <div class="marco barra">
+  <a class="marca" href="#inicio"><span aria-hidden="true">Φ</span> Filosofía paso a paso</a>
+  <button id="letra" type="button" aria-pressed="false">Letra grande</button>
+ </div>
+ <nav class="marco navegacion" aria-label="Secciones">
+  <a href="#inicio">Inicio</a><a href="#filosofar">Mito y logos</a><a href="#ramas">Ramas</a><a href="#amor">El amor</a><a href="#taller">Taller de respuestas</a>
+ </nav>
+</header>
+<main id="contenido" class="marco" tabindex="-1"></main>
+<footer class="marco">Filosofía · 1.º de Bachillerato <a href="#fuentes">Materiales de clase</a></footer>
+<noscript>Activa JavaScript para abrir los esquemas y hacer la práctica.</noscript>
+<script>
+const unidades = [
+{
+ id:'filosofar', titulo:'Mito y logos', tema:'Tema 1', resumen:'De una idea que damos por hecha a una explicación que podemos discutir.',
+ fuente:'TEMA 1 · ¿Qué significa filosofar? y hoja de ejercicios del tema.',
+ fichas:[
+ ['¿Qué significa filosofar?','Preguntar → aclarar → justificar → objetar.','Filosofar empieza cuando nos detenemos ante algo que parecía evidente. Aclaramos qué significan las palabras, damos razones y examinamos qué podría fallar en nuestra respuesta.','Si la mayoría lo cree, ¿es verdad? La cantidad de personas que creen algo no garantiza su verdad. Una mayoría puede compartir el mismo error. Una objeción posible es que un consenso entre especialistas sí puede ser una razón para confiar, si se apoya en pruebas.'],
+ ['¿Cómo se distingue mito y logos?','Mito: relato, seres extraordinarios y tradición. Logos: razones examinables y, al explicar la naturaleza, búsqueda de causas naturales.','El tránsito fue gradual, en la Grecia de los siglos VII–VI a. C. Ambos intentaban explicar el mundo. Cambió la forma de justificar las respuestas. Una explicación razonada puede equivocarse. Mencionar una causa natural por sí sola tampoco basta: hay que explicar por qué esa causa encaja.','En el relato de Perséfone, el regreso de la hija alegra a Deméter y vuelve la vegetación. La sucesión de las estaciones se explica por las acciones y emociones de las divinidades. Una explicación científica actual estudia la inclinación del eje terrestre y cómo varía la luz que recibe cada hemisferio.'],
+ ['¿Qué es el arjé?','Phýsis = naturaleza. Arjé = principio originario o fundamento común.','Tales propone el agua. Anaximandro, el ápeiron (lo indeterminado e ilimitado). Anaxímenes, el aire, que cambia mediante condensación y rarefacción. Lo importante es la pregunta común y que las respuestas se puedan examinar.','Aunque el agua no sea el origen de todo, la propuesta de Tales importa porque busca un principio general dentro de la naturaleza.'],
+ ['¿Por qué en Grecia?','Contacto cultural, polis, escritura, conocimientos técnicos y diversidad religiosa.','El comercio y la navegación permitieron comparar costumbres. La escritura ayudó a conservar y discutir argumentos. La polis favoreció el debate público entre quienes tenían ciudadanía. Estas condiciones facilitaron el nacimiento de la tradición filosófica occidental.','Una explicación escrita se puede releer y comparar con otra. Eso facilita la crítica, aunque por sí solo no produzca filosofía.'],
+ ['¿Ruptura o transformación?','Burnet: ruptura. Cornford: transformación. Jaeger: desarrollo gradual.','Burnet subraya la novedad de las causas naturales. Cornford destaca que el logos conserva preguntas y estructuras míticas, como la pregunta por el origen, y las transforma. Jaeger sitúa el cambio en una evolución cultural y educativa más amplia.','Mito y filosofía preguntan de dónde viene el mundo. Una genealogía divina y el arjé responden de maneras distintas. Esa continuidad apoya la lectura de Cornford.'],
+ ['¿Puede la razón volver a funcionar como mito?','Adorno y Horkheimer: el mito ya intenta explicar y controlar. La razón se vuelve dogmática si deja de examinar sus fines.','La razón instrumental busca los medios más eficaces para un objetivo. La razón crítica también pregunta si ese objetivo es justo, a quién beneficia y qué consecuencias tiene. En el tema, «Ilustración» designa el proceso amplio de liberarse del miedo mediante el conocimiento.','Un sistema de vigilancia puede ser eficaz. La pregunta crítica es si vigilar de esa forma está justificado y cómo afecta a la libertad. Una promesa como «la tecnología resolverá todos los problemas» puede funcionar como mito actual si se toma como inevitable y oculta sus límites.']
+ ],
+ preguntas:[
+ [1,'«La ira de Poseidón hizo temblar la tierra». ¿Qué tipo de explicación es?',['Logos','Mítica','Razón crítica'],1,'Atribuye el terremoto a la acción de un dios.'],
+ [1,'¿Qué pregunta intenta responder la búsqueda del arjé?',['¿Qué principio explica la diversidad natural?','¿Qué dios protege cada ciudad?','¿Qué leyes tiene la polis?'],0,'Busca un principio común de la naturaleza.'],
+ [1,'¿Qué propone Anaximandro?',['Aire','Agua','Ápeiron'],2,'El ápeiron es el principio indeterminado e ilimitado.'],
+ [2,'El mito y los primeros filósofos preguntan por el origen del mundo, pero cambian el tipo de respuesta. ¿Qué interpretación encaja mejor?',['Cornford','Burnet','La razón instrumental'],0,'Cornford pone el acento en conservar preguntas y transformarlas racionalmente.'],
+ [2,'Una persona dice que la lluvia se debe a un proceso natural, pero no explica cuál ni da razones. ¿Qué falta?',['Que la historia sea antigua','Justificar cómo ese proceso explica la lluvia','Que todos lo crean'],1,'Nombrar una causa natural no basta. La explicación tiene que poder examinarse.'],
+ [2,'El centro estudia qué sistema vigila más eficazmente. ¿Qué pregunta añade la razón crítica?',['¿Cuánto tarda en instalarse?','¿Cuántas cámaras cubren el patio?','¿Es legítimo vigilar y qué pasa con la privacidad?'],2,'La razón crítica examina los fines y sus consecuencias.']
+ ],
+ escritura:[
+ ['Pon en duda «Si la mayoría piensa algo, probablemente sea verdad».','Aclara «mayoría» y «verdad». Formula una pregunta, da una respuesta con una razón y añade una objeción.','¿Que muchas personas lo crean hace probable que sea cierto? Depende de sus razones. Si todas repiten el mismo rumor, el número no añade pruebas. Alguien podría objetar que el consenso sí cuenta cuando nace de evidencias comprobadas independientemente.','¿He formulado una pregunta? ¿Mi ejemplo apoya mi razón? ¿La objeción cuestiona de verdad la respuesta?'],
+ ['Interpreta el relato de Deméter y Perséfone y compáralo con una explicación científica.','Nombra el fenómeno, las divinidades, las emociones humanas y el modo de justificar cada explicación.','El relato explica las estaciones. La pérdida de Perséfone entristece a Deméter y la tierra deja de producir. Su regreso trae de nuevo la vegetación. Es un relato tradicional con causas divinas. Una explicación científica estudia la inclinación del eje terrestre y la variación de la luz solar mediante observaciones.','¿He relacionado los hechos del relato con el fenómeno? ¿He comparado las causas y la justificación?'],
+ ['¿Qué significa «paso» para Burnet, Cornford y Jaeger?','Escribe una frase por interpretación. Elige una y apóyala con el ejemplo del arjé.','Para Burnet supone una ruptura profunda en la manera de explicar. Para Cornford se transforman preguntas y estructuras anteriores. Para Jaeger es parte de un desarrollo cultural y educativo gradual. La lectura de Cornford explica que se siga preguntando por el origen, aunque el arjé se busque en la naturaleza.','¿He distinguido el cambio de la continuidad? ¿He justificado mi elección con algo del tema?']
+ ]
+},
+{
+ id:'ramas', titulo:'Ramas de la filosofía', tema:'Reconocer preguntas', resumen:'Identifica qué se pregunta y explica por qué corresponde a esa rama.',
+ fuente:'Actividad · Las ramas de la filosofía y esquema visual de las seis ramas.',
+ fichas:[
+ ['Metafísica / Ontología','Realidad y existencia.','Pregunta qué existe y cómo es la realidad.','«¿Todo lo que existe es material?» es metafísica porque pregunta por qué clases de cosas existen.'],
+ ['Epistemología','Conocimiento, verdad y justificación.','Pregunta qué podemos conocer y cómo lo sabemos.','«¿Podemos confiar en los sentidos?» es epistemología porque examina una fuente de conocimiento.'],
+ ['Ética','Conducta, decisiones y vida buena.','Pregunta cómo debemos actuar y qué razones justifican lo que hacemos.','«¿Está bien mentir para ayudar?» es ética porque valora una decisión moral.'],
+ ['Filosofía política','Sociedad, poder, leyes y justicia.','Pregunta cómo debemos organizar la vida en común.','«¿Cuándo es legítimo el poder?» es filosofía política porque pregunta por la justificación de la autoridad.'],
+ ['Lógica','Premisas, conclusión y validez.','Pregunta si la conclusión se sigue de las premisas.','«Todos los gatos vuelan. Leo es un gato. Luego Leo vuela». La forma es válida, aunque la primera premisa sea falsa.'],
+ ['Estética','Arte, belleza y experiencia estética.','Pregunta qué hace que algo sea arte o cómo experimentamos su valor.','«¿Una obra tiene que ser bella para ser arte?» es estética porque examina qué define una obra artística.']
+ ],
+ preguntas:[],
+ escritura:[['«¿Debemos obedecer siempre las leyes?» Identifica la rama y justifica.','Completa «Pertenece a… porque pregunta por…».','Pertenece a la filosofía política porque examina cuándo una norma colectiva obliga a la ciudadanía. Puede relacionarse con la ética si nos centramos en la decisión moral individual.','¿He explicado el foco de la pregunta en una frase?']]
+},
+{
+ id:'amor', titulo:'El amor', tema:'Tema 2', resumen:'Cuatro perspectivas para explicar, comparar y aplicar.',
+ fuente:'El amor · Material de clase, pp. 2–12, y Actividades del Tema 2, pp. 1–2.',
+ fichas:[
+ ['Aristófanes · Unidad perdida','Amar es buscar la unidad perdida.','En El banquete, de Platón, Aristófanes cuenta que Zeus dividió a los seres originarios. Desde entonces cada mitad busca la unión. La separación simboliza la experiencia de falta.','«Sin ti no soy nadie» lleva la imagen de la mitad al extremo de la dependencia. Una objeción al mito es que dos personas pueden compartir su vida aun teniendo proyectos propios.'],
+ ['Sócrates y Diotima · Deseo del bien y la belleza','Eros desea lo que le falta o quiere conservar el bien que posee.','Sócrates transmite la enseñanza de Diotima en El banquete. Eros, hijo de Penía (pobreza) y Poros (recurso), es intermedio: le falta lo que busca, pero tiene ingenio para buscarlo. El deseo puede educarse y aspirar al bien y a la belleza duraderos.','La escala asciende de un cuerpo bello a todos los cuerpos bellos, las almas bellas, las acciones y normas bellas, los conocimientos y la Belleza en sí. Por ejemplo, la atracción inicial puede dar paso a valorar el carácter y después lo que hace valiosa una acción.'],
+ ['Schopenhauer · Voluntad de vivir','Voluntad de vivir → enamoramiento → reproducción.','Según su teoría, una fuerza ciega impulsa la conservación y la reproducción. La persona puede sentir que elige libremente, aunque el impulso que la atrae apunte a la continuidad de la especie. La satisfacción de un deseo puede ser pasajera.','Una pareja que decide no tener hijos permite preguntar cuánto explica la reproducción acerca del cuidado y el compromiso duraderos.'],
+ ['Simone Weil · Atención','Amar implica reconocer a la otra persona como alguien distinto.','La atención desinteresada consiste en abrir espacio para su realidad, apartando por un momento nuestros deseos. Escuchar y entender es compatible con discrepar y mantener nuestros límites.','Ante un desacuerdo: «Quiero entender por qué piensas así». Esa actitud reconoce las razones de la otra persona sin exigir que cambie para satisfacerme.']
+ ],
+ preguntas:[
+ [1,'¿Qué perspectiva explica el amor mediante la búsqueda de la unidad perdida?',['Simone Weil','Aristófanes','Schopenhauer'],1,'La separación de los seres originarios simboliza la falta y la búsqueda de unión.'],
+ [1,'¿Qué representa Poros en el relato de Diotima?',['La pobreza','La reproducción','Los recursos para buscar lo que deseamos'],2,'Penía representa la falta. Poros representa el ingenio para buscar.'],
+ [1,'¿Con qué concepto explica Schopenhauer el enamoramiento?',['Voluntad de vivir','Belleza en sí','Atención desinteresada'],0,'Interpreta la atracción como manifestación de la Voluntad de vivir.'],
+ [2,'Escucho a mi amiga con cuidado y sigo discrepando. ¿Cómo lo interpretaría Weil?',['Comprender es compatible con discrepar','Atender obliga a darle la razón','Si discrepamos no hay atención'],0,'La atención reconoce su realidad y sus razones aunque no coincidan con las nuestras.'],
+ [2,'¿En qué se parecen Aristófanes y Diotima?',['Buscan literalmente la misma mitad','Relacionan el amor con una falta','Explican todo amor por la reproducción'],1,'Comparten la idea de falta. Difieren en lo que se desea y en cómo se puede transformar el deseo.'],
+ [2,'Alguien empieza valorando el físico y después aprecia el carácter y la justicia. ¿Qué idea encaja?',['Unidad perdida','Voluntad de vivir','Educación del deseo en Diotima'],2,'La escala sube desde la belleza física hacia las almas, las acciones y las normas, entre otros niveles.']
+ ],
+ escritura:[
+ ['Compara a Aristófanes y Diotima con una semejanza y dos diferencias.','Di qué comparten, qué se busca y cómo cambia el deseo.','Ambos relacionan el amor con la falta. Aristófanes propone recuperar una unidad perdida; en el discurso de Diotima, Eros busca poseer el bien y la belleza de forma duradera. Además, en Aristófanes el relato apunta a la unión con la mitad, mientras que en Diotima el deseo puede educarse y avanzar hacia la Belleza en sí.','¿La semejanza es común a ambos? ¿He dado dos diferencias distintas?'],
+ ['Reconstruye la explicación de Schopenhauer y plantea una objeción.','Usa la secuencia Voluntad de vivir → atracción → reproducción.','Según Schopenhauer, la atracción parece una decisión individual. La Voluntad de vivir actúa como un impulso profundo hacia la reproducción. Esta teoría puede explicar parte del enamoramiento, pero deja abierta la cuestión de cómo entender un compromiso amoroso cuando una pareja decide no tener hijos.','¿He explicado por qué parece una decisión libre? ¿He señalado qué aspecto queda sin explicar?'],
+ ['Aplica a Aristófanes y Weil esta idea: «Si me quiere, tiene que convertirse en lo que yo necesito».','Explica qué ayuda a entender el mito y qué objetaría Weil.','La imagen de la mitad ayuda a entender el deseo de sentirse completo. Si se toma literalmente puede alimentar dependencia. Weil objetaría que la frase reduce al otro a mis deseos: amar exige escuchar quién es y aceptar que tiene ideas y necesidades propias.','¿He aplicado las dos perspectivas al caso concreto?']
+ ]
+}
+];
+[
+ ['¿Existe algo más allá de la realidad material?',0,'Pregunta por el tipo de realidad que existe.'],
+ ['¿Podemos confiar siempre en nuestros sentidos?',1,'Examina si los sentidos son una fuente fiable de conocimiento.'],
+ ['¿Está bien mentir para ayudar a un amigo?',2,'Pide valorar moralmente una decisión personal.'],
+ ['¿Qué hace que una sociedad sea justa?',3,'Pregunta por la organización justa de una sociedad.'],
+ ['¿Por qué consideramos bella una obra de arte?',5,'La pregunta se centra en el juicio de belleza.'],
+ ['¿Cómo sabemos si un razonamiento es correcto?',4,'Examina si un razonamiento está bien construido.'],
+ ['¿Qué significa existir?',0,'Pregunta por el significado de la existencia.'],
+ ['¿Qué diferencia hay entre creer algo y saberlo?',1,'Examina qué convierte una creencia en conocimiento.'],
+ ['¿Debemos obedecer siempre las leyes?',3,'El foco es la obligación ante las leyes y la autoridad pública.'],
+ ['¿La belleza depende de los gustos de cada persona?',5,'Examina si el juicio de belleza depende de quien observa.'],
+ ['¿Qué significa vivir una vida buena?',2,'Pregunta por lo que hace buena nuestra forma de vivir.'],
+ ['¿Puede una conclusión ser válida aunque las premisas sean falsas?',4,'El foco es la validez del razonamiento. La validez depende de cómo se sigue la conclusión, y las premisas pueden ser falsas.']
+].forEach(([pregunta,clave,exp],i)=>{
+ const ramas=['Metafísica','Epistemología','Ética','Filosofía política','Lógica','Estética'];
+ const indices=i<6?[clave,(clave+2)%6,(clave+4)%6]:[0,1,2,3,4,5];
+ if(i<6) for(let vueltas=0;vueltas<i%3;vueltas++) indices.push(indices.shift());
+ unidades[1].preguntas.push([i<6?1:2,pregunta,indices.map(n=>ramas[n]),indices.indexOf(clave),exp]);
+});
+const talleres = [
+ {
+ id:'dis-mito', titulo:'Disertación sobre mito y logos', fuente:'Hoja de ejercicios del Tema 1 y Guía de disertación.',
+ pregunta:'¿El paso del mito al logos fue una ruptura o una transformación?',
+ detalle:'Pregunta de ensayo para practicar. La guía general pide 200–250 palabras. Orientación: 35–45 para introducción y tesis, 130–160 para el desarrollo con objeción y respuesta, y 30–45 para la conclusión.',
+ rango:[200,250], pasos:[
+ ['Problema y tesis','Presenta la cuestión, explica por qué importa y di qué defenderás.','En la Grecia antigua, explicar el mundo dejó de depender exclusivamente de los relatos tradicionales. ¿Fue este cambio una ruptura con el mito? Defenderé que fue una transformación gradual, porque cambió el modo de justificar las respuestas y se mantuvieron algunas preguntas.'],
+ ['Argumento 1','Da una razón, explícala, apóyala con una idea o ejemplo y enlázala con la tesis.','En primer lugar, la búsqueda del arjé conserva una pregunta antigua: cuál es el origen de lo que existe. Esta continuidad apoya la interpretación de Cornford. Cambia la respuesta, pero el interés por comprender el origen permanece.'],
+ ['Argumento 2','Aporta una razón distinta y relaciónala con la tesis.','En segundo lugar, mito y logos pudieron coexistir. Platón siguió utilizando mitos en sus diálogos para tratar problemas filosóficos. Esto muestra que una cultura puede desarrollar argumentos y conservar relatos que ayudan a pensar.'],
+ ['Objeción y respuesta','Formula una dificultad real para tu tesis y responde con una razón.','Podría objetarse, siguiendo a Burnet, que buscar causas naturales y someterlas a crítica representa una ruptura profunda. La objeción señala una novedad importante. Sin embargo, que cambie el criterio para justificar una explicación no exige que desaparezcan las preguntas o las formas narrativas anteriores. Por eso la ruptura explica una parte del cambio. La comparación entre los autores aclara qué se conserva y qué se transforma.'],
+ ['Conclusión','Vuelve a la pregunta y cierra con el resultado del razonamiento.','En conclusión, el logos introdujo una manera nueva de justificar las respuestas. La continuidad de algunas preguntas y el uso posterior de mitos permiten entender el proceso como una transformación gradual con una novedad decisiva.']
+ ]},
+ {
+ id:'dis-amor',titulo:'Disertación sobre el amor',fuente:'El amor · Material de clase, p. 12, y Actividades del Tema 2, p. 2.',
+ pregunta:'¿Amar consiste principalmente en buscar lo que falta, aspirar a lo valioso, seguir impulsos o reconocer al otro?',
+ detalle:'La actividad del tema pide 250–350 palabras y comparar al menos tres perspectivas. Presenta el problema, defiende una posición con razones, considera una objeción y cierra con una conclusión.',
+ rango:[250,350],pasos:[
+ ['Presenta el problema','Explica por qué puede haber distintas respuestas.','Cuando hablamos de amor podemos referirnos a la atracción, a la búsqueda de unión o al cuidado de otra persona. Esto plantea un problema: ¿qué rasgo debería ocupar el lugar principal? Defenderé que reconocer al otro es lo más importante para construir una relación duradera.'],
+ ['Explica y compara perspectivas','Explica al menos tres. Incluye una semejanza y una diferencia explícitas.','En el relato de Aristófanes, la división de los seres originarios simboliza una falta: cada mitad quiere recuperar la unidad. Diotima también relaciona el amor con lo que falta, pero sostiene que deseamos el bien y la belleza de forma duradera. En su perspectiva, el deseo puede educarse y avanzar desde la atracción física hacia lo valioso en las personas, las acciones y el conocimiento. Por su parte, Simone Weil pone el acento en prestar atención a la realidad de la otra persona. Mientras Aristófanes destaca la unión, Weil destaca que quien amamos tiene una vida propia.'],
+ ['Defiende tu posición','Da una razón y apóyala con un ejemplo.','Considero más convincente la atención de Weil porque ayuda a distinguir el cuidado de la dependencia. Por ejemplo, ante un desacuerdo puedo escuchar a mi pareja sin exigirle que piense igual. Reconocer su punto de vista permite mantener el vínculo al tiempo que ambos conservamos nuestras decisiones.'],
+ ['Objeción y respuesta','Explica qué diría alguien que discrepa y cómo responderías.','Podría objetarse que atender a alguien también es posible sin amarlo. Es verdad: la atención por sí sola no explica la atracción ni todos los afectos. Aun así, en una relación amorosa sostenida permite que el deseo de unión respete a quien tenemos delante.'],
+ ['Conclusión','Recoge la respuesta a la pregunta inicial.','En conclusión, el amor puede comenzar con el deseo o la sensación de falta, pero reconocer al otro permite que la unión se convierta en cuidado. Por eso considero la atención la condición más importante para una relación duradera.']
+ ]},
+ {
+ id:'oral',titulo:'Exposición oral sobre un mito',fuente:'Tarea · Un mito para comprender el presente, pp. 1–2.',
+ pregunta:'¿Cómo puede un mito ayudarnos a pensar un problema actual?',
+ detalle:'Prepara una exposición de 6–7 minutos. Puedes usar apoyo visual. Ensaya el guion explicándolo con tus palabras.',
+ pasos:[
+ ['Presentación','Di el nombre del mito, su tradición y los personajes principales.','Voy a hablar del mito griego de Ícaro. Sus personajes principales son Ícaro y su padre, Dédalo.'],
+ ['Trama','Cuenta en orden solo los hechos necesarios para entender la historia.','Dédalo fabrica alas con plumas y cera para escapar. Avisa a Ícaro del peligro de volar demasiado alto. Ícaro se acerca al sol, la cera se derrite y cae al mar.'],
+ ['Enseñanza','Da una interpretación y vincúlala con un hecho del relato.','El relato invita a distinguir entre poder hacer algo y poder hacerlo sin asumir riesgos. Ícaro puede subir, pero ignora qué mantiene unidas sus alas.'],
+ ['Aplicación actual','Elige una situación concreta y explica el vínculo con el mito.','Una persona copia un reto arriesgado de redes sociales porque parece fácil. Como Ícaro, se fija en lo que puede conseguir y pasa por alto los límites de seguridad.']
+ ]},
+ {
+ id:'conceptos',titulo:'Investigación de conceptos',fuente:'Actividad de investigación de conceptos y Actividades del Tema 2, pp. 3–8.',
+ pregunta:'¿Cómo explico el neomalthusianismo y el keynesianismo con mis palabras?',
+ detalle:'Completa la ficha para cada concepto. La actividad indica que pueden preguntarse en una prueba escrita. Contrasta al menos dos fuentes por concepto y anota cuáles consultaste. Los ejemplos muestran cómo formular la respuesta.',
+ pasos:[
+ ['Definición','Explica cada idea en una frase.','Neomalthusianismo: conjunto de desarrollos posteriores a Malthus que relacionan el crecimiento de la población con la presión sobre los recursos y dan importancia a limitar el crecimiento demográfico. Keynesianismo: enfoque que destaca el papel de la demanda total en la producción y el empleo.'],
+ ['Origen y autores','Distingue antecedentes de desarrollos posteriores.','Malthus es el antecedente del neomalthusianismo. Las corrientes posteriores son diversas y conviene identificar qué versión describe cada fuente. El keynesianismo toma su nombre de John Maynard Keynes y fue desarrollado después por otros economistas.'],
+ ['Características','Escribe dos o tres ideas para cada concepto.','En formulaciones neomalthusianas, la población puede crecer más deprisa que los recursos y la planificación familiar puede influir en ese crecimiento. En el enfoque keynesiano, la demanda puede ser insuficiente para generar empleo y el gasto público puede contribuir a estimularla durante una recesión.'],
+ ['Opinión razonada','Elige una idea por concepto y justifica tu valoración.','Me parece útil estudiar la presión sobre recursos y también examinar cómo se distribuyen. Considero razonable impulsar la demanda en una recesión si las medidas llegan a hogares que necesitan aumentar su consumo.'],
+ ['Aplicación actual','Propón una situación concreta para cada idea.','Para el primer concepto, estudiar cómo un aumento de habitantes afecta a la demanda de agua junto a otros factores, como la sequía y el consumo por persona. Para el segundo, analizar un plan de inversión pública en una recesión.'],
+ ['Fuentes','Anota dos fuentes por concepto y qué comprobaste en cada una.','Plantilla: «En la primera fuente comprobé… En la segunda encontré… Las dos coinciden en…». Rellénala con las fuentes que leas.']
+ ]}
+];
+
+const main = document.querySelector('main');
+const letra = document.querySelector('#letra');
+const storeKey = 'filosofia-paso-a-paso-v1';
+let ajustes = {};
+try { ajustes = JSON.parse(localStorage.getItem(storeKey)) || {}; } catch {}
+function guardar() {
+ try { localStorage.setItem(storeKey, JSON.stringify(ajustes)); } catch {}
+}
+function aplicarLetra() {
+ const grande = Boolean(ajustes.grande);
+ document.documentElement.classList.toggle('grande', grande);
+ letra.setAttribute('aria-pressed', String(grande));
+}
+letra.addEventListener('click', () => {
+ ajustes.grande = !ajustes.grande;
+ aplicarLetra();
+ guardar();
+});
+aplicarLetra();
+
+const boton = (texto, destino, principal = false) =>
+ `<a class="boton ${principal ? 'primario' : ''}" href="#${destino}">${texto}</a>`;
+const cabecera = (etapa, titulo, intro) =>
+ `<section class="hero"><p class="kicker">${etapa}</p><h1>${titulo}</h1><p class="bajada">${intro}</p></section>`;
+const fuente = texto => `<p class="kicker">Material de referencia · ${texto}</p>`;
+const contador = (actual,total) => `<p class="kicker">Paso ${actual + 1} de ${total}</p>`;
+const opcionesUnidad = unidad => `<div class="acciones">
+ ${boton('Esquema', unidad.id)}
+ ${boton('1. Reconocer', unidad.id + '/1')}
+ ${boton('2. Aplicar', unidad.id + '/2')}
+ ${boton('3. Escribir', unidad.id + '/3')}
+ </div>`;
+
+function inicio() {
+ main.innerHTML = cabecera('1.º de Bachillerato','Filosofía paso a paso','Estudia lo imprescindible y ensaya cómo responder con tus propias palabras.') +
+ '<h2>¿Qué vas a estudiar?</h2>' +
+ '<div class="rejilla">' + unidades.map(u =>
+  `<article class="tarjeta"><p class="kicker">${u.tema}</p><h3>${u.titulo}</h3><p>${u.resumen}</p>${boton('Abrir ' + u.titulo.toLowerCase(),u.id,true)}</article>`
+ ).join('') + '</div>' +
+ `<section class="panel"><h2>Cómo usar la aplicación</h2><ol class="pasos"><li>Lee la idea clave y abre el ejemplo.</li><li>Practica una pregunta cada vez. Puedes volver a intentarlo.</li><li>Escribe una respuesta y revísala con el modelo.</li></ol><p>Las preguntas sirven para ensayar lo trabajado en clase. Puedes hacerlas a tu ritmo.</p>${boton('Ir al taller de respuestas','taller')}</section>`;
+}
+function esquema(u) {
+ main.innerHTML = cabecera(u.tema,u.titulo,u.resumen) + opcionesUnidad(u) +
+ '<section class="panel"><h2>Lo imprescindible</h2>' + u.fichas.map(([titulo,clave,exp,ej]) =>
+  `<article class="ficha"><h3>${titulo}</h3><p class="clave">${clave}</p><details><summary>Ver explicación y ejemplo</summary><p>${exp}</p><p><strong>Ejemplo resuelto.</strong> ${ej}</p></details></article>`
+ ).join('') + '</section>' + fuente(u.fuente);
+}
+function cuestionario(u,nivel) {
+ const banco = u.preguntas.filter(q => q[0] === nivel);
+ let actual = 0;
+ let aciertos = new Set();
+ main.innerHTML = cabecera(u.titulo,nivel === 1 ? 'Reconocer' : 'Aplicar','Elige una respuesta y comprueba la razón.') + opcionesUnidad(u) +
+ '<section id="turno" class="panel"></section>';
+ const turno = document.querySelector('#turno');
+ function mostrar(mover = true) {
+  if (actual === banco.length) {
+   turno.innerHTML = `<h2 tabindex="-1">Práctica terminada</h2><p>${aciertos.size} de ${banco.length} preguntas resueltas correctamente durante el recorrido.</p><div class="acciones"><button type="button" id="repetir">Volver a practicar</button>${boton(nivel === 1 ? 'Pasar a aplicar' : 'Pasar a escribir',u.id + '/' + (nivel + 1),true)}</div>`;
+   turno.querySelector('button').onclick = () => { actual = 0; aciertos = new Set(); mostrar(); };
+   turno.querySelector('h2').focus();
+   return;
+  }
+  const [,pregunta,alternativas,clave,exp] = banco[actual];
+  turno.innerHTML = contador(actual,banco.length) +
+    `<form><fieldset><legend tabindex="-1">${pregunta}</legend>${alternativas.map((texto,i)=>
+     `<label class="opcion"><input type="radio" name="respuesta" value="${i}"> ${texto}</label>`).join('')}</fieldset>
+     <div class="acciones"><button class="primario" type="submit">Comprobar</button><button type="button" id="solucion">Ver solución</button><button type="button" id="siguiente" hidden>Siguiente</button></div>
+     <div class="estado" role="status"></div></form>`;
+  const form = turno.querySelector('form');
+  const estado = turno.querySelector('[role=status]');
+  const siguiente = turno.querySelector('#siguiente');
+  const solucion = turno.querySelector('#solucion');
+  function resolver(mensaje) {
+   estado.textContent = mensaje + ' ' + exp;
+   siguiente.hidden = false;
+  }
+  form.onsubmit = evento => {
+   evento.preventDefault();
+   const marcada = form.querySelector('input:checked');
+   if (!marcada) { estado.textContent = 'Elige una opción antes de comprobar.'; return; }
+   if (Number(marcada.value) === clave) {
+    aciertos.add(actual);
+    resolver('Correcto.');
+   } else {
+    estado.textContent = 'Revisa tu elección. Pista: ' + exp + ' Prueba otra opción.';
+   }
+  };
+  solucion.onclick = () => resolver('Respuesta: ' + alternativas[clave] + '.');
+  siguiente.onclick = () => { actual++; mostrar(); };
+  if (mover) turno.querySelector('legend').focus();
+ }
+ mostrar(false);
+}
+function escribir(u) {
+ main.innerHTML = cabecera(u.titulo,'Escribir una respuesta','Formula tu respuesta y compárala con el modelo.') + opcionesUnidad(u) +
+ `<section class="panel"><label for="consigna"><strong>Elige una pregunta</strong></label>
+ <select id="consigna">${u.escritura.map(([p],i)=>`<option value="${i}">Pregunta ${i+1}</option>`).join('')}</select>
+ <p class="kicker">Tu texto se conserva al cambiar de pregunta en esta pantalla. Cópialo antes de salir.</p><div id="respuesta"></div></section>` + fuente(u.fuente);
+ const select = document.querySelector('#consigna');
+ const panel = document.querySelector('#respuesta');
+ const borradores = [];
+ function mostrar() {
+  const i = Number(select.value);
+  const [pregunta,pista,modelo,revision] = u.escritura[i];
+  panel.innerHTML = `<h2 id="pregunta">${pregunta}</h2><details><summary>Ver ayuda para empezar</summary><p>${pista}</p></details>
+    <label for="borrador"><strong>Mi respuesta</strong></label><textarea id="borrador" aria-describedby="pregunta"></textarea>
+    <details><summary>Ver modelo y revisar</summary><p>${modelo}</p><p><strong>Comprueba tu respuesta.</strong> ${revision}</p></details>`;
+  const area = panel.querySelector('textarea');
+  area.value = borradores[i] || '';
+  area.oninput = () => { borradores[i] = area.value; };
+ }
+ select.onchange = mostrar;
+ mostrar();
+}
+function listadoTaller() {
+ main.innerHTML = cabecera('Escritura y expresión oral','Taller de respuestas','Prepara una tarea con un guion. Abre un modelo cuando lo necesites.') +
+ '<div class="rejilla">' + talleres.map(t =>
+  `<article class="tarjeta"><h2>${t.titulo}</h2><p>${t.pregunta}</p>${boton('Abrir guion','taller/' + t.id,true)}</article>`
+ ).join('') + '</div>';
+}
+function taller(t) {
+ const borrador = t.pasos.map(() => '');
+ let actual = 0;
+ main.innerHTML = cabecera('Taller de respuestas',t.titulo,t.pregunta) +
+ `<p>${t.detalle}</p><details class="panel"><summary>Ver todos los pasos</summary><ol class="pasos">${t.pasos.map(([nombre])=>`<li>${nombre}</li>`).join('')}</ol></details>
+ <section id="pasos-taller" class="panel"></section>` + fuente(t.fuente) + boton('Volver al taller','taller');
+ const panel = document.querySelector('#pasos-taller');
+ const palabras = texto => (texto.match(/[\p{L}\p{N}]+(?:[’'-][\p{L}\p{N}]+)*/gu) || []).length;
+ function mostrar(mover = true) {
+  if (actual === t.pasos.length) {
+   panel.innerHTML = `<h2 tabindex="-1">Revisa tu trabajo</h2>
+   <label for="texto-final"><strong>Texto reunido</strong></label>
+   <textarea id="texto-final" readonly rows="11"></textarea>
+   ${t.rango ? `<p>${palabras(borrador.join(' '))} palabras. Extensión de la tarea: ${t.rango.join('–')} palabras.</p>` : ''}
+   <details><summary>Ver modelo completo</summary>${t.pasos.map(([nombre,,modelo])=>`<h3>${nombre}</h3><p>${modelo}</p>`).join('')}</details>
+   <fieldset><legend>Lista de revisión</legend>${t.pasos.map(([nombre])=>`<label class="opcion"><input type="checkbox"> He revisado este apartado · ${nombre}</label>`).join('')}</fieldset>
+   <p>Para guardar una copia, selecciona el texto y cópialo.</p>
+   <button type="button" data-prev>Volver al último paso</button>`;
+   panel.querySelector('textarea').value = borrador.join('\n\n');
+  } else {
+   const [nombre,pista,modelo] = t.pasos[actual];
+   panel.innerHTML = contador(actual,t.pasos.length) +
+    `<h2 id="paso-titulo" tabindex="-1">${nombre}</h2><p id="consigna-paso">${pista}</p>
+     <label for="texto-paso"><strong>Mi borrador</strong></label>
+     <textarea id="texto-paso" aria-describedby="paso-titulo consigna-paso"></textarea>
+     <details><summary>Ver ejemplo de este paso</summary><p>${modelo}</p></details>
+     <div class="acciones">
+      ${actual ? '<button type="button" data-prev>Anterior</button>' : ''}
+      <button type="button" class="primario" data-next>${actual + 1 === t.pasos.length ? 'Revisar el conjunto' : 'Siguiente paso'}</button>
+     </div><p class="kicker">El borrador se conserva al pasar de un paso a otro. Copia el texto antes de salir del taller.</p>`;
+   const area = panel.querySelector('textarea');
+   area.value = borrador[actual];
+   area.oninput = () => { borrador[actual] = area.value; };
+   panel.querySelector('[data-next]').onclick = () => { actual++; mostrar(); };
+  }
+  const anterior = panel.querySelector('[data-prev]');
+  if (anterior) anterior.onclick = () => { actual--; mostrar(); };
+  if (mover) panel.querySelector('h2').focus();
+ }
+ mostrar(false);
+}
+function fuentes() {
+ main.innerHTML = cabecera('1.º de Bachillerato','Materiales de clase','Estos documentos orientan el contenido y el tipo de tareas de la aplicación.') +
+ `<ul class="pasos">
+ <li><strong>TEMA 1 · ¿Qué significa filosofar?</strong> y hoja de ejercicios. Preguntas filosóficas, mito y logos, arjé y razón crítica.</li>
+ <li><strong>Las ramas de la filosofía.</strong> Lámina con las seis ramas y actividad de clasificación.</li>
+ <li><strong>El amor · Material de clase</strong> y <strong>Actividades del Tema 2.</strong> Cuatro perspectivas, comparación, aplicación y disertación.</li>
+ <li><strong>Actividad de investigación de conceptos.</strong> Ficha de neomalthusianismo y keynesianismo.</li>
+ <li><strong>Guía de disertación</strong> y <strong>Un mito para comprender el presente.</strong> Pautas de escritura y exposición oral.</li>
+ <li><strong>Guía docente de Filosofía de 1.º de Bachillerato.</strong> Comprensión, argumentación, contraste de fuentes, aplicación y revisión.</li>
+ </ul>`;
+}
+function ruta(mover = false) {
+ const [seccion,sub] = location.hash.slice(1).split('/');
+ if (seccion === 'contenido') { main.focus(); return; }
+ const u = unidades.find(item => item.id === seccion);
+ let activa = seccion;
+ if (u) {
+  if (sub === '1' || sub === '2') cuestionario(u,Number(sub));
+  else if (sub === '3') escribir(u);
+  else esquema(u);
+ } else if (seccion === 'taller') {
+  const t = talleres.find(item => item.id === sub);
+  if (t) taller(t); else listadoTaller();
+ } else if (seccion === 'fuentes') fuentes();
+ else { inicio(); activa = 'inicio'; }
+
+ for (const enlace of document.querySelectorAll('nav a')) {
+  if (enlace.hash === '#' + activa) enlace.setAttribute('aria-current','page');
+  else enlace.removeAttribute('aria-current');
+ }
+ document.title = main.querySelector('h1').textContent + ' · Filosofía de 1.º de Bachillerato';
+ if (mover) { main.focus({preventScroll:true}); window.scrollTo(0,0); }
+}
+window.addEventListener('hashchange', () => ruta(true));
+if (location.hash === '#contenido') history.replaceState(null,'','#inicio');
+ruta();
+document.querySelector('.salto').addEventListener('click', evento => {
+ evento.preventDefault();
+ main.focus();
+});
+
+</script>
+</body>
+</html>
