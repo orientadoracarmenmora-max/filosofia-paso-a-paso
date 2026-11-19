@@ -68,6 +68,7 @@ select{font:inherit;color:inherit;background:white;border:1px solid #6d8275;bord
 .ficha+.ficha{border-top:1px solid var(--borde);margin-top:1rem;padding-top:1rem}
 .ficha details{border:0;padding:0;margin-bottom:0}
 .ficha h3{margin-bottom:.25rem}
+.campo-examen{display:block;margin-top:1rem}
 </style>
 
 </head>
@@ -249,8 +250,7 @@ const opcionesUnidad = unidad => `<div class="acciones">
  ${boton('3. Escribir', unidad.id + '/3')}
  </div>`;
 
-function guiaExamen() {
- const preguntas = [
+const preguntasExamen = [
   ['Reconocer una rama','¿A qué rama pertenece «¿Podemos confiar en los sentidos?»? Justifica.','Pertenece a… porque pregunta por…','Pertenece a la epistemología porque examina si los sentidos son una fuente fiable de conocimiento.'],
   ['Cuestionar una idea','Pon en duda «Si la mayoría lo cree, probablemente sea verdad».','¿Basta con…? Pienso que… porque… Una objeción sería…','¿Basta con que muchos lo crean? Un rumor puede ser falso aunque muchos lo repitan. Si la mayoría ha comprobado los hechos, su acuerdo sí aporta una razón.'],
   ['Interpretar y comparar mito y logos','¿Cómo explica el mito de Deméter las estaciones? ¿En qué se diferencia de una explicación razonada?','El mito explica… mediante… Una explicación razonada busca…','El mito relaciona el regreso de Perséfone con el crecimiento de la vegetación. Una explicación razonada busca causas examinables, como la variación de luz debida a la inclinación del eje terrestre.'],
@@ -263,14 +263,131 @@ function guiaExamen() {
   ['Explicar un concepto de investigación','¿Qué es el keynesianismo? Pon una aplicación.','Se asocia con… Su idea principal es… Por ejemplo…','Keynes destacó que una demanda insuficiente puede reducir el empleo. En una recesión, la inversión pública puede estimular esa demanda. Prepara la misma estructura para el neomalthusianismo.'],
   ['Empezar una disertación','¿Qué es lo más importante al amar?','Yo pienso que lo más importante es ___ porque ___.','Yo pienso que lo más importante es escuchar a la otra persona porque así entiendo qué necesita.']
  ];
+const ejemplosRamas = [
+ ['¿Podríamos seguir siendo la misma persona si perdiéramos todos nuestros recuerdos?',0, 'pregunta qué nos hace seguir siendo la misma persona'],
+ ['¿Todo lo que existe se puede tocar?',0, 'pregunta si todo lo que existe es material'],
+ ['¿Qué diferencia hay entre parecer real y ser real?',0, 'pregunta qué significa que algo sea real'],
+ ['¿Cómo puedo saber si una noticia que he leído es verdadera?',1, 'pregunta cómo podemos comprobar si la noticia es verdadera'],
+ ['¿Un recuerdo borroso basta para decir que sé lo que pasó?',1, 'pregunta si la memoria basta para conocer un hecho'],
+ ['¿Qué pruebas necesito para saber que una afirmación es cierta?',1, 'pregunta qué pruebas justifican lo que creemos'],
+ ['¿Está bien guardar un secreto si puede perjudicar a alguien?',2, 'pregunta si guardar el secreto sería correcto si puede causar daño'],
+ ['¿Es correcto copiar para ayudar a un amigo?',2, 'pregunta si ayudar a alguien justifica copiar'],
+ ['¿Qué debo hacer si encuentro algo que no es mío?',2, 'pregunta qué sería lo correcto al encontrar algo ajeno'],
+ ['¿Quién debería poder decidir las normas de un país?',3, 'pregunta quién tiene autoridad para decidir las normas'],
+ ['¿Qué derechos debe proteger una ley?',3, 'pregunta qué derechos deben proteger las leyes'],
+ ['¿Es justo que solo puedan votar las personas que tienen dinero?',3, 'pregunta cómo debe repartirse el derecho a votar'],
+ ['Todos los perros son mamíferos. Lúa es un perro. ¿Se sigue que Lúa es un mamífero?',4, 'examina si la conclusión se sigue de las dos premisas'],
+ ['Si todos los pájaros fueran verdes y un gorrión fuera un pájaro, ¿se seguiría que es verde?',4, 'examina si la conclusión se sigue de las premisas aunque sean imaginarias'],
+ ['Si llueve, se moja el patio. El patio está mojado. ¿Podemos concluir que ha llovido?',4, 'examina si el patio mojado basta para concluir que llovió. También podrían haberlo regado'],
+ ['¿Puede ser arte un objeto de uso cotidiano?',5, 'pregunta qué hace que un objeto se considere arte'],
+ ['¿Qué hace que una canción nos parezca bella?',5, 'pregunta por qué juzgamos bella una canción'],
+ ['¿Una obra de arte tiene que gustarnos para que tenga valor?',5, 'pregunta qué da valor a una obra de arte']
+];
+const pistasRamas = [
+ ['Metafísica','Fíjate en si pregunta por lo que existe, qué es real o qué hace que algo siga siendo lo mismo.','pregunta por la realidad o la identidad'],
+ ['Epistemología','Fíjate en si pregunta cómo sabemos algo o qué pruebas necesitamos para creerlo.','pregunta por el conocimiento y las pruebas'],
+ ['Ética','Fíjate en si pide decidir si una acción está bien o mal.','pregunta cómo debemos actuar'],
+ ['Filosofía política','Fíjate en si habla de leyes, derechos, poder o normas de toda una sociedad.','pregunta cómo se organiza la vida en común'],
+ ['Lógica','Fíjate en si pregunta si una conclusión se sigue de lo dicho antes.','pregunta si el razonamiento es válido'],
+ ['Estética','Fíjate en si pregunta por el arte, la belleza o cómo valoramos una obra.','pregunta por el arte o la belleza']
+];
+const ramasExamen = [
+ ...unidades[1].preguntas.map(([,pregunta,opciones,clave,exp])=>[pregunta,pistasRamas.findIndex(r=>r[0]===opciones[clave]),exp]),
+ ...ejemplosRamas
+].map(([pregunta,i,exp])=>{
+ const [rama,pista,razon] = pistasRamas[i];
+ return ['Reconocer una rama',pregunta,'Es de ___ porque pregunta por ___.',
+  `Es de ${rama} porque ${exp ? exp.charAt(0).toLowerCase()+exp.slice(1).replace(/\.$/,'')+'.' : razon+'.'}`,pista];
+});
+const explicacionesExamen = [
+ '', 'Busca una excepción. Piensa en un rumor que se repite y que nadie ha comprobado.',
+ 'Están explicando el mismo fenómeno. Fíjate en qué causa usa cada explicación.',
+ 'Imagina que los primeros filósofos preguntan si cosas muy distintas tienen un mismo punto de partida.',
+ 'Piensa en dos cosas: qué cambió al explicar y qué preguntas siguieron siendo las mismas.',
+ 'Primero pregunta cómo hacerlo. Después pregunta si está bien hacerlo y a quién afecta.',
+ 'En esta teoría, sentir que eliges y saber qué impulsa esa elección son dos cosas distintas.',
+ 'Los dos hablan de echar algo en falta. Para compararlos, di qué se busca en cada caso.',
+ 'Puedes escuchar para entender cómo piensa alguien y seguir teniendo tu propia opinión.',
+ 'Si muchas personas dejan de comprar, algunas empresas venden menos. Piensa en el efecto sobre el empleo.',
+ 'Escribe primero tu respuesta en una frase. Añade «porque» y una razón.'
+];
+const adicionalesExamen = [
+ ['Mito y logos','¿Puede una explicación razonada estar equivocada?','Sí, porque una explicación razonada se puede ___ y se puede ___.','Sí. La idea de Tales de que todo procede del agua podía discutirse, aunque hoy no la aceptemos.','Una explicación razonada ofrece razones. Esas razones se pueden poner a prueba y corregir.'],
+ ['Arjé','¿Qué principio propusieron Tales, Anaximandro y Anaxímenes?','Tales propuso ___. Anaximandro, ___. Anaxímenes, ___.','Tales propuso el agua. Anaximandro, el ápeiron. Anaxímenes, el aire.','Los tres se hacen la misma pregunta y dan tres respuestas. Ápeiron significa lo ilimitado e indeterminado.'],
+ ['Mito y logos','¿En qué se parecen el mito y el logos?','Los dos intentan ___. Cambia la forma de ___.','Los dos intentan explicar el mundo. El logos busca razones que otras personas puedan discutir.','Piensa en un mismo terremoto explicado primero por un relato y luego por causas naturales.'],
+ ['Razón crítica','¿Por qué «La tecnología resolverá todos los problemas» puede funcionar como un mito actual?','Puede funcionar como un mito si se acepta que ___ sin examinar ___.','Puede funcionar como mito si se da por hecho que todo avance técnico es bueno. Así se dejan fuera problemas como la pérdida de privacidad.','Adorno y Horkheimer señalan que la razón puede volverse dogmática cuando da algo por seguro y deja de examinar sus límites.'],
+ ['El amor','¿Qué significa la unidad perdida en el relato de Aristófanes?','Los seres fueron divididos. Buscar a su mitad representa ___.','Buscar a su mitad representa el deseo de volver a sentirse completo.','En el relato, antes eran seres enteros. Después de la división, cada mitad busca volver a unirse.'],
+ ['El amor','¿Por qué Eros es hijo de Penía y Poros?','Penía representa ___. Poros representa ___.','Penía representa la falta. Poros representa los recursos para buscar lo que falta.','Piensa en tener una necesidad y, al mismo tiempo, tener maneras de intentar satisfacerla.'],
+ ['El amor','¿Qué significa que el deseo puede educarse para Diotima?','Podemos empezar valorando ___ y aprender a valorar ___.','Puedo fijarme primero en el físico y después aprender a valorar el carácter o las buenas acciones.','En la escala del amor, la atención pasa de un cuerpo bello a formas más amplias de belleza. El último paso es la Belleza en sí.'],
+ ['El amor','¿Qué objeción podrías hacer a la teoría de Schopenhauer?','La teoría ayuda a explicar ___, pero deja abierta la pregunta de ___.','Puede ayudar a explicar la atracción, pero deja abierta la pregunta de cómo explicar el cuidado en parejas que deciden no tener hijos.','Una objeción señala un caso que la explicación deja sin resolver. Busca un caso de amor en el que el centro sea el cuidado.'],
+ ['El amor','¿Qué diferencia hay entre escuchar y darle la razón a alguien?','Escuchar es intentar ___. Aun así, puedo ___.','Escuchar es intentar entender por qué piensa así. Aun así, puedo seguir pensando de otra manera.','En Simone Weil, prestar atención es dejar espacio a lo que el otro piensa y necesita.'],
+ ['Investigación','¿Qué es el neomalthusianismo? Pon un ejemplo.','Parte de ideas de ___. Relaciona el crecimiento de la población con ___. Por ejemplo, ___.','Parte de ideas de Malthus desarrolladas después por distintas corrientes. Relaciona población y recursos. Podemos estudiar si una población mayor aumenta la demanda de agua.','Piensa en cuántas personas necesitan un recurso y cuánto hay disponible. La distribución y el consumo por persona también influyen.']
+];
+const recorridosExamen = {
+ ramas: ['Ramas de la filosofía',ramasExamen],
+ mito: ['Tema 1 · Mito y logos',[
+  ...preguntasExamen.slice(1,6).map((q,i)=>[...q,explicacionesExamen[i+1]]),
+  ...adicionalesExamen.slice(0,4)
+ ]],
+ amor: ['Tema 2 · El amor',[
+  ...preguntasExamen.slice(6,9).map((q,i)=>[...q,explicacionesExamen[i+6]]),
+  ...adicionalesExamen.slice(4,9)
+ ]],
+ conceptos: ['Conceptos de investigación',[
+  [...preguntasExamen[9],explicacionesExamen[9]],adicionalesExamen[9]
+ ]]
+};
+
+function guiaExamen() {
  return `<section class="panel guia-examen" aria-labelledby="titulo-examen">
  <h2 id="titulo-examen">Qué tengo que saber para el examen</h2>
- <p>Estas preguntas son de práctica y se basan en las actividades de clase. Abre una y prueba a responder en voz alta o por escrito.</p>
- ${preguntas.map(([tipo,pregunta,inicio,ejemplo])=>`<details><summary>${tipo}</summary><p><strong>Te pueden preguntar.</strong> ${pregunta}</p><p><strong>Puedes empezar así.</strong> «${inicio}»</p><p><strong>Ejemplo corto.</strong> ${ejemplo}</p></details>`).join('')}
- <h3>Si te piden una disertación, empieza aquí</h3>
- <p>Una disertación es un texto en el que respondes a una pregunta y explicas por qué. Puedes copiar las frases del guion y completar los huecos.</p>
- <div class="acciones">${boton('Guion sobre el amor','taller/dis-amor',true)} ${boton('Guion sobre mito y logos','taller/dis-mito')}</div>
+ <p>Practica una pregunta de cada vez. Lee la ayuda, completa los huecos y abre el ejemplo cuando quieras comparar. Las preguntas se basan en las actividades de clase.</p>
+ <div class="acciones">${Object.entries(recorridosExamen).map(([id,[titulo,banco]])=>
+  boton(`${titulo} · ${banco.length} preguntas`,`examen/${id}`,id==='ramas')).join('')}</div>
+ <h3>Para practicar la disertación</h3>
+ <div class="acciones">${boton('Guion sobre el amor','taller/dis-amor')} ${boton('Guion sobre mito y logos','taller/dis-mito')}</div>
  </section>`;
+}
+
+function practicarExamen(id) {
+ const [titulo,banco] = recorridosExamen[id];
+ const borradores = banco.map(()=>'');
+ let actual = 0;
+ main.innerHTML = cabecera('Qué tengo que saber para el examen',titulo,'Lee, completa la frase y mira el ejemplo.') +
+ boton('Volver a la guía de examen','inicio') + '<section id="pregunta-examen" class="panel"></section>';
+ const panel = document.querySelector('#pregunta-examen');
+ function mostrar(mover = true) {
+  const [tipo,pregunta,inicioFrase,ejemplo,ayuda] = banco[actual];
+  const frase = inicioFrase.replaceAll('…',' ___');
+  panel.innerHTML = `${contador(actual,banco.length)}<p class="kicker">${tipo}</p>
+   <h2 id="consigna-examen" tabindex="-1">${pregunta}</h2>
+   <details><summary>Ver explicación fácil</summary><p>${ayuda}</p></details>
+   <p><strong>Frase con huecos</strong><br>${frase}</p>
+   <button type="button" id="usar-examen">Poner la frase en mi respuesta</button>
+   <label class="campo-examen" for="texto-examen"><strong>Mi respuesta</strong></label><textarea id="texto-examen" aria-describedby="consigna-examen"></textarea>
+   <details><summary>Ver ejemplo corto</summary><p>${ejemplo}</p></details>
+   <div class="acciones">
+    ${actual>0?'<button type="button" id="prev-examen">Anterior</button>':''}
+    ${actual<banco.length-1?'<button type="button" id="next-examen" class="primario">Siguiente pregunta</button>':boton('Terminar y volver a la guía','inicio',true)}
+   </div>`;
+  const area = panel.querySelector('textarea');
+  area.value = borradores[actual];
+  area.oninput = () => { borradores[actual] = area.value; };
+  panel.querySelector('#usar-examen').onclick = () => {
+   const inicio = area.value.length + (area.value ? 1 : 0);
+   area.value += (area.value ? '\n' : '') + frase;
+   borradores[actual] = area.value;
+   area.focus();
+   const hueco = area.value.indexOf('___',inicio);
+   if (hueco >= 0) area.setSelectionRange(hueco,hueco+3);
+  };
+  const anterior = panel.querySelector('#prev-examen');
+  if (anterior) anterior.onclick = () => { actual--; mostrar(); };
+  const siguiente = panel.querySelector('#next-examen');
+  if (siguiente) siguiente.onclick = () => { actual++; mostrar(); };
+  if (mover) panel.querySelector('h2').focus();
+ }
+ mostrar(false);
 }
 
 function inicio() {
@@ -449,6 +566,9 @@ function ruta(mover = false) {
   if (sub === '1' || sub === '2') cuestionario(u,Number(sub));
   else if (sub === '3') escribir(u);
   else esquema(u);
+ } else if (seccion === 'examen' && Object.hasOwn(recorridosExamen,sub)) {
+  practicarExamen(sub);
+  activa = 'inicio';
  } else if (seccion === 'taller') {
   const t = talleres.find(item => item.id === sub);
   if (t) taller(t); else listadoTaller();
