@@ -83,6 +83,9 @@ select{font:inherit;color:inherit;background:white;border:1px solid #6d8275;bord
 .audio{margin:.55rem 0 .9rem}
 .audio span[role=status]{font-size:.9rem}
 .modelo-respuesta .audio{margin-left:.3rem}
+.altavoz{display:inline-grid;place-items:center;border-radius:50%;width:2.75rem;height:2.75rem;padding:0;font-size:1.18rem}
+.altavoz.sonando{color:white;background:var(--verde)}
+.solo-lector{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 </style>
 
 </head>
@@ -305,14 +308,15 @@ function detenerVoz() {
  if (lectura.alCargar) motorVoz.removeEventListener('voiceschanged',lectura.alCargar);
  motorVoz.cancel();
  lectura.estado.textContent = 'Audio detenido.';
+ lectura.finalizar();
 }
-function leerEnVozAlta(texto,estado) {
+function leerEnVozAlta(texto,estado,finalizar) {
  detenerVoz();
  actualizarVoces();
  const frases = (segmentador
   ? Array.from(segmentador.segment(texto), item=>item.segment)
   : texto.split(/(?<=[.!?])\s+/)).map(frase=>frase.trim()).filter(Boolean);
- const lectura = { estado, espera:0 };
+ const lectura = { estado, espera:0, finalizar };
  lecturaActiva = lectura;
  let elegida;
  let posicion = 0;
@@ -335,6 +339,7 @@ function leerEnVozAlta(texto,estado) {
    posicion++;
    if (posicion === frases.length) {
     lecturaActiva = undefined;
+    finalizar();
     estado.textContent = elegida ? 'Lectura terminada con ' + elegida.name + '.' : 'Lectura terminada.';
    } else {
     lectura.espera = window.setTimeout(leerFrase,pausaEntreFrases);
@@ -354,6 +359,7 @@ function leerEnVozAlta(texto,estado) {
     leerFrase();
    } else {
     lecturaActiva = undefined;
+    finalizar();
     motorVoz.cancel();
     estado.textContent = elegida ? 'No se ha podido reproducir ' + elegida.name + '.' : 'No se ha podido reproducir la voz de este navegador.';
    }
@@ -380,18 +386,26 @@ function leerEnVozAlta(texto,estado) {
 }
 function controlesAudio(contenedor,texto,etiqueta) {
  const zona = document.createElement('div');
- zona.className = 'acciones audio';
- zona.innerHTML = `<button type="button" data-escuchar><span aria-hidden="true">🔊</span> ${etiqueta}</button>
- <button type="button" data-detener>Detener audio</button><span role="status"></span>`;
+ zona.className = 'audio';
+ zona.innerHTML = `<button type="button" class="altavoz" aria-label="${etiqueta}" title="${etiqueta}"><span aria-hidden="true">🔊</span></button><span class="solo-lector" role="status"></span>`;
  contenedor.append(zona);
  const estado = zona.querySelector('[role=status]');
- zona.querySelector('[data-detener]').onclick = () => {
-  detenerVoz();
-  estado.textContent = 'Audio detenido.';
- };
- zona.querySelector('[data-escuchar]').onclick = () => {
+ const boton = zona.querySelector('button');
+ const icono = boton.querySelector('span');
+ function actualizarBoton(sonando) {
+  boton.classList.toggle('sonando',sonando);
+  boton.setAttribute('aria-label',sonando?'Detener audio':etiqueta);
+  boton.title = sonando?'Detener audio':etiqueta;
+  icono.textContent = sonando?'■':'🔊';
+ }
+ boton.onclick = () => {
   if (!motorVoz) { estado.textContent = 'Este navegador no ofrece lectura en voz alta.'; return; }
-  leerEnVozAlta(texto,estado);
+  if (lecturaActiva?.estado === estado) {
+   detenerVoz();
+  } else {
+   actualizarBoton(true);
+   leerEnVozAlta(texto,estado,()=>actualizarBoton(false));
+  }
  };
 }
 
@@ -679,10 +693,10 @@ function esquema(u) {
  '<section class="panel"><h2>Apuntes de apoyo</h2><p>Consulta estas fichas si necesitas entender una palabra de clase al preparar una respuesta.</p>' +
  u.fichas.map(([titulo,clave,exp,ej],i) => {
   const [facil,ejemploFacil] = lecturaFacil[u.id][i];
-  return `<details class="ficha"><summary>${titulo}</summary>
+  return `<details class="ficha"><summary>${titulo}</summary><div data-audio-teoria></div>
    <p class="clave"><strong>Palabras de clase</strong><br>${clave}</p>
    <p><strong>En pocas palabras</strong><br>${facil}</p>
-   <p><strong>Ejemplo</strong><br>${ejemploFacil}</p><div data-audio-teoria></div>
+   <p><strong>Ejemplo</strong><br>${ejemploFacil}</p>
    <details><summary>Leer con más detalle</summary><p>${exp}</p><p>${ej}</p></details>
   </details>`;
  }).join('') + '</section>' + fuente(u.fuente);
