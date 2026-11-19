@@ -297,13 +297,15 @@ function controlesAudio(contenedor,texto,etiqueta) {
   detenerVoz();
   const locucion = new SpeechSynthesisUtterance(texto);
   const voces = window.speechSynthesis.getVoices();
-  const voz = voces.find(v=>/^es[-_]ES$/i.test(v.lang) && v.localService)
+  const voz = voces.find(v=>/^es[-_]ES$/i.test(v.lang) && /google/i.test(v.name))
+   || voces.find(v=>/^es\b/i.test(v.lang) && /google/i.test(v.name))
+   || voces.find(v=>/^es[-_]ES$/i.test(v.lang) && v.localService)
    || voces.find(v=>/^es[-_]ES$/i.test(v.lang)) || voces.find(v=>/^es\b/i.test(v.lang));
   if (voz) locucion.voice = voz;
   locucion.lang = voz?.lang || 'es-ES';
   locucion.rate = 0.88;
   lecturaActiva = locucion;
-  estado.textContent = 'Leyendo.';
+  estado.textContent = voz ? 'Leyendo con ' + voz.name + '.' : 'Leyendo.';
   locucion.onend = () => {
    if (lecturaActiva === locucion) { lecturaActiva = undefined; estado.textContent = 'Lectura terminada.'; }
   };
