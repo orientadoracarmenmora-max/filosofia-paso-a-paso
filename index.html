@@ -76,6 +76,13 @@ select{font:inherit;color:inherit;background:white;border:1px solid #6d8275;bord
 .lista-tema{padding-left:1.5rem}
 .lista-tema li{padding-bottom:.45rem}
 .lista-tema button{text-align:left}
+.menu-temas{grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr))}
+.menu-temas .acciones{margin-top:auto}
+.nav-tema{background:#eaf0e5;border:1px solid var(--borde);border-radius:.8rem;padding:.8rem 1rem;margin-block:1rem}
+.nav-tema p{font-weight:700;margin-bottom:.5rem}
+.audio{margin:.55rem 0 .9rem}
+.audio span[role=status]{font-size:.9rem}
+.modelo-respuesta .audio{margin-left:.3rem}
 </style>
 
 </head>
@@ -87,7 +94,7 @@ select{font:inherit;color:inherit;background:white;border:1px solid #6d8275;bord
   <button id="letra" type="button" aria-pressed="false">Letra grande</button>
  </div>
  <nav class="marco navegacion" aria-label="Secciones">
-  <a href="#inicio">Inicio</a><a href="#filosofar">Mito y logos</a><a href="#ramas">Ramas</a><a href="#amor">El amor</a><a href="#taller">Taller de respuestas</a>
+  <a href="#inicio">Inicio</a><a href="#filosofar">Tema 1</a><a href="#ramas">Ramas</a><a href="#amor">Tema 2 · El amor</a><a href="#taller">Taller de respuestas</a>
  </nav>
 </header>
 <main id="contenido" class="marco" tabindex="-1"></main>
@@ -251,10 +258,61 @@ const cabecera = (etapa, titulo, intro) =>
 const fuente = texto => `<p class="kicker">Material de referencia · ${texto}</p>`;
 const contador = (actual,total) => `<p class="kicker">Paso ${actual + 1} de ${total}</p>`;
 const temaPractica = { filosofar:'mito', ramas:'ramas', amor:'amor' };
-const opcionesUnidad = unidad => `<div class="acciones">
- ${boton('Practicar preguntas escritas','examen/' + temaPractica[unidad.id],true)}
- ${boton('Ver apuntes de ' + unidad.titulo,unidad.id)}
- </div>`;
+const zonasTemas = {
+ mito: { titulo:'Tema 1 · ¿Qué significa filosofar?', teoria:'filosofar', taller:'dis-mito' },
+ amor: { titulo:'Tema 2 · El amor', teoria:'amor', taller:'dis-amor' },
+ ramas: { titulo:'Ramas de la filosofía', teoria:'ramas' },
+ conceptos: { titulo:'Conceptos de investigación', teoria:'taller/conceptos' }
+};
+const navTema = (id,actual) => {
+ const zona = zonasTemas[id];
+ const enlaces = [
+  [id==='conceptos'?'Conceptos y ejemplos':'Teoría breve',zona.teoria,'teoria'],
+  ['Preguntas escritas','examen/'+id,'preguntas']
+ ];
+ if (zona.taller) enlaces.push(['Disertación','taller/'+zona.taller,'taller']);
+ return `<nav class="nav-tema" aria-label="Apartados de ${zona.titulo}">
+ <p><a href="#inicio">Inicio</a> <span aria-hidden="true">›</span> ${zona.titulo}</p>
+ <div class="acciones">${enlaces.map(([etiqueta,destino,seccion])=>`<a class="boton ${seccion===actual?'primario':''}" href="#${destino}" ${seccion===actual?'aria-current="page"':''}>${etiqueta}</a>`).join('')}</div></nav>`;
+};
+const vozDisponible = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+let lecturaActiva;
+function detenerVoz() {
+ if (vozDisponible) window.speechSynthesis.cancel();
+ lecturaActiva = undefined;
+}
+function controlesAudio(contenedor,texto,etiqueta) {
+ const zona = document.createElement('div');
+ zona.className = 'acciones audio';
+ zona.innerHTML = `<button type="button" data-escuchar><span aria-hidden="true">🔊</span> ${etiqueta}</button>
+ <button type="button" data-detener>Detener audio</button><span role="status"></span>`;
+ contenedor.append(zona);
+ const estado = zona.querySelector('[role=status]');
+ zona.querySelector('[data-detener]').onclick = () => {
+  detenerVoz();
+  estado.textContent = 'Audio detenido.';
+ };
+ zona.querySelector('[data-escuchar]').onclick = () => {
+  if (!vozDisponible) { estado.textContent = 'Este navegador no ofrece lectura en voz alta.'; return; }
+  detenerVoz();
+  const locucion = new SpeechSynthesisUtterance(texto);
+  const voces = window.speechSynthesis.getVoices();
+  const voz = voces.find(v=>/^es[-_]ES$/i.test(v.lang) && v.localService)
+   || voces.find(v=>/^es[-_]ES$/i.test(v.lang)) || voces.find(v=>/^es\b/i.test(v.lang));
+  if (voz) locucion.voice = voz;
+  locucion.lang = voz?.lang || 'es-ES';
+  locucion.rate = 0.88;
+  lecturaActiva = locucion;
+  estado.textContent = 'Leyendo.';
+  locucion.onend = () => {
+   if (lecturaActiva === locucion) { lecturaActiva = undefined; estado.textContent = 'Lectura terminada.'; }
+  };
+  locucion.onerror = () => {
+   if (lecturaActiva === locucion) { lecturaActiva = undefined; estado.textContent = 'No se ha podido reproducir la voz de este navegador.'; }
+  };
+  window.speechSynthesis.speak(locucion);
+ };
+}
 
 const preguntasExamen = [
   ['Reconocer una rama','¿A qué rama pertenece «¿Podemos confiar en los sentidos?»? Justifica.','Pertenece a… porque pregunta por…','Pertenece a la epistemología porque examina si los sentidos son una fuente fiable de conocimiento.'],
@@ -263,8 +321,8 @@ const preguntasExamen = [
   ['Definir el arjé','¿Qué es el arjé? Pon un ejemplo.','El arjé es… Para… ese principio era…','El arjé es el principio originario o fundamento común de la naturaleza. Tales propuso el agua.'],
   ['Comparar interpretaciones','¿Fue el paso del mito al logos una ruptura o una transformación?','Burnet destaca… Cornford sostiene… Jaeger lo sitúa…','Burnet habla de ruptura porque se empiezan a buscar causas naturales. Cornford cree que algunas preguntas del mito se mantienen y reciben otras respuestas. Jaeger sitúa el cambio en un proceso cultural gradual. Me convence la idea de transformación porque tanto el mito como los primeros filósofos preguntan por el origen del mundo, aunque lo explican de distinta manera.'],
   ['Aplicar la razón crítica','¿Qué preguntaría la razón crítica ante un sistema de vigilancia?','La razón instrumental pregunta cómo… La crítica pregunta si…','Una cosa es calcular cómo vigilar con eficacia. Examinar si la vigilancia se justifica y qué efectos tiene sobre la libertad es propio de la razón crítica.'],
-  ['Explicar una idea de un autor del amor','¿Cómo explica Schopenhauer que nos enamoremos?','Según… el enamoramiento se explica por…','Según Schopenhauer, parece que elegimos libremente. Su teoría atribuye la atracción a la Voluntad de vivir, orientada a la reproducción. Repasa también unidad perdida, Eros y Belleza en sí, y atención.'],
-  ['Comparar autores del amor','¿En qué se parecen y se diferencian Aristófanes y Diotima?','Ambos… Para Aristófanes… Para Diotima…','Ambos relacionan amor y falta. Aristófanes habla de recuperar la unidad perdida. Diotima habla de buscar el bien y la belleza de forma duradera y de educar el deseo.'],
+  ['Explicar una idea de un autor del amor','¿Cómo explica Schopenhauer que nos enamoremos?','Según… el enamoramiento se explica por…','Según Schopenhauer, parece que elegimos libremente. Su teoría atribuye la atracción a la Voluntad de vivir, orientada a la reproducción. '],
+  ['Comparar autores del amor','¿En qué se parecen y se diferencian Aristófanes y Diotima?','Ambos… Para Aristófanes… Para Diotima…','Ambos relacionan el amor con una falta. Primera diferencia: Aristófanes habla de recuperar la unidad perdida y Diotima habla de buscar el bien y la belleza de forma duradera. Segunda diferencia: en Aristófanes el deseo lleva a reunirse con la otra mitad. En Diotima, el deseo se educa y puede avanzar desde la belleza física hasta la Belleza en sí.'],
   ['Aplicar una idea a un caso','¿Qué diría Simone Weil de «Si me quieres, tienes que pensar como yo»?','Desde la idea de atención, Weil diría que…','Para Weil, amar implica escuchar al otro y reconocer que tiene ideas propias. Puedo intentar entender sus razones aunque siga discrepando.'],
   ['Explicar un concepto de investigación','¿Qué es el keynesianismo? Pon una aplicación.','Se asocia con… Su idea principal es… Por ejemplo…','Keynes destacó que una demanda insuficiente puede reducir el empleo. En una recesión, la inversión pública puede estimular esa demanda. Prepara la misma estructura para el neomalthusianismo.'],
   ['Empezar una disertación','¿Qué es lo más importante al amar?','Yo pienso que lo más importante es ___ porque ___.','Yo pienso que lo más importante es escuchar a la otra persona porque así entiendo qué necesita.']
@@ -323,8 +381,8 @@ const adicionalesExamen = [
  ['Arjé','¿Qué principio propusieron Tales, Anaximandro y Anaxímenes?','Tales propuso ___. Anaximandro, ___. Anaxímenes, ___.','Tales propuso el agua. Anaximandro, el ápeiron. Anaxímenes, el aire.','Los tres se hacen la misma pregunta y dan tres respuestas. Ápeiron significa lo ilimitado e indeterminado.'],
  ['Mito y logos','¿En qué se parecen el mito y el logos?','Los dos intentan ___. Cambia la forma de ___.','Los dos intentan explicar el mundo. El logos busca razones que otras personas puedan discutir.','Piensa en un mismo terremoto explicado primero por un relato y luego por causas naturales.'],
  ['Razón crítica','¿Por qué «La tecnología resolverá todos los problemas» puede funcionar como un mito actual?','Puede funcionar como un mito si se acepta que ___ sin examinar ___.','Puede funcionar como mito si se da por hecho que todo avance técnico es bueno. Así se dejan fuera problemas como la pérdida de privacidad.','Adorno y Horkheimer señalan que la razón puede volverse dogmática cuando da algo por seguro y deja de examinar sus límites.'],
- ['El amor','¿Qué significa la unidad perdida en el relato de Aristófanes?','Los seres fueron divididos. Buscar a su mitad representa ___.','Buscar a su mitad representa el deseo de volver a sentirse completo.','En el relato, antes eran seres enteros. Después de la división, cada mitad busca volver a unirse.'],
- ['El amor','¿Por qué Eros es hijo de Penía y Poros?','Penía representa ___. Poros representa ___.','Penía representa la falta. Poros representa los recursos para buscar lo que falta.','Piensa en tener una necesidad y, al mismo tiempo, tener maneras de intentar satisfacerla.'],
+ ['El amor','¿Qué significa la unidad perdida en el relato de Aristófanes?','Los seres fueron divididos. Buscar a su mitad representa ___.','En el mito de Aristófanes, Zeus divide a los seres originarios. La división simboliza una falta. Desde entonces, cada mitad busca unirse con la otra. Esa búsqueda representa el deseo de volver a sentirse completo.','En el relato, antes eran seres enteros. Después de la división, cada mitad busca volver a unirse.'],
+ ['El amor','¿Por qué Eros es hijo de Penía y Poros?','Penía representa ___. Poros representa ___.','En el relato de Diotima, Penía representa la falta y Poros representa los recursos para buscar lo que falta. Eros es un ser intermedio porque desea algo que todavía no posee, pero tiene ingenio para buscarlo.','Piensa en tener una necesidad y, al mismo tiempo, tener maneras de intentar satisfacerla.'],
  ['El amor','¿Qué significa que el deseo puede educarse para Diotima?','Podemos empezar valorando ___ y aprender a valorar ___.','Puedo fijarme primero en el físico y después aprender a valorar el carácter o las buenas acciones.','En la escala del amor, la atención pasa de un cuerpo bello a formas más amplias de belleza. El último paso es la Belleza en sí.'],
  ['El amor','¿Qué objeción podrías hacer a la teoría de Schopenhauer?','La teoría ayuda a explicar ___, pero deja abierta la pregunta de ___.','Puede ayudar a explicar la atracción, pero deja abierta la pregunta de cómo explicar el cuidado en parejas que deciden no tener hijos.','Una objeción señala un caso que la explicación deja sin resolver. Busca un caso de amor en el que el centro sea el cuidado.'],
  ['El amor','¿Qué diferencia hay entre escuchar y darle la razón a alguien?','Escuchar es intentar ___. Aun así, puedo ___.','Escuchar es intentar entender por qué piensa así. Aun así, puedo seguir pensando de otra manera.','En Simone Weil, prestar atención es dejar espacio a lo que el otro piensa y necesita.'],
@@ -336,6 +394,16 @@ const ampliacionTemaUno = [
  ['Adorno y Horkheimer','¿Por qué dicen Adorno y Horkheimer que el mito contiene algo de razón y que la razón puede volver a ser mítica?','','El mito intenta explicar el mundo y reducir el miedo. Por ejemplo, da una causa a una tormenta. La razón puede volver a funcionar como un mito cuando acepta una idea sin examinarla. Pasa si damos por hecho que todo lo eficaz es también correcto.','La pregunta tiene dos partes. Primero explica qué intenta hacer el mito. Después explica qué pasa cuando dejamos de examinar una idea.'],
  ['Mitos de nuestro tiempo','Analiza «Comprar más nos hace más felices» como posible mito actual. ¿Qué promete y qué deja fuera?','','La frase promete que comprar más trae felicidad. Puede resultar convincente porque comprar algo da satisfacción durante un rato. Deja fuera que la felicidad también depende de vínculos y experiencias. Funciona como mito si se acepta como algo evidente y se deja de preguntar cuándo se cumple.','Explica qué promete, por qué puede convencer y qué parte de la realidad falta.']
 ];
+const ampliacionAmor = [
+ ['Comprender un concepto','¿Qué es la Belleza en sí y con qué autora o perspectiva se estudia?','','La Belleza en sí se estudia en el discurso de Diotima en El banquete, de Platón. Es la belleza universal, más allá de cualquier cuerpo u obra concreta. Es el último paso de la escala del amor.','Piensa en la diferencia entre encontrar bonita una cosa y preguntarte qué es la belleza.'],
+ ['Reconstruir un argumento','¿Por qué el amor parece una elección libre según Schopenhauer? Reconstruye su argumento y pon una objeción.','','Según Schopenhauer, una persona siente que elige de quién se enamora. En su teoría actúa la Voluntad de vivir, un impulso que orienta la atracción hacia la reproducción. Esto presupone que hay una fuerza que influye aunque la persona no la note. Una objeción es que la reproducción deja sin explicar el cuidado y el compromiso de una pareja que decide no tener hijos.','Separa lo que siente la persona de lo que propone el filósofo. Sigue este orden: Voluntad de vivir, enamoramiento y reproducción.'],
+ ['Aplicar dos perspectivas','«Si de verdad me quiere, tiene que convertirse en lo que yo necesito». ¿Cómo analizarían la frase Aristófanes y Simone Weil?','','El mito de Aristófanes ayuda a entender por qué alguien busca sentirse completo con otra persona. Si se lleva al extremo, la imagen de la mitad puede fomentar la dependencia. Simone Weil diría que amar exige atender a lo que la otra persona piensa y necesita. Pedirle que cambie para ajustarse a mis deseos le impide ser ella misma.','Lee la misma frase desde dos ideas: buscar la mitad perdida y prestar atención a la otra persona.'],
+ ['Interpretar y argumentar','¿Qué diferencia hay entre «Quiero compartir mi vida contigo» y «Sin ti no soy nadie»? Relaciónalo con Aristófanes.','','La primera frase expresa el deseo de compartir la vida. La segunda da a entender que la persona siente que no vale por sí misma. La imagen de la mitad perdida explica esa sensación de falta, aunque también podemos amar y compartir la vida manteniendo nuestros propios proyectos.','En cada frase, fíjate en cómo se ve la persona a sí misma. Después conecta esa diferencia con la imagen de la mitad.'],
+ ['Formular una objeción','¿Qué objeción harías a la idea de que necesitamos una media naranja?','','Si todo el mundo necesitara una mitad para sentirse completo, sería difícil explicar que alguien pueda llevar una vida plena sin pareja. La imagen de Aristófanes sirve para entender un deseo de unión, aunque no describe todas las formas de amar.','Busca un caso que la idea de necesitar una «mitad» no explique bien.'],
+ ['Aplicar la teoría a un ejemplo','Pon un ejemplo de satisfacción momentánea y felicidad duradera. ¿Cómo se relaciona con Schopenhauer?','','Recibir un mensaje que esperaba puede alegrarme un rato. Sentirme acompañado y respetado durante años sería algo más duradero. Schopenhauer señala que satisfacer un deseo da un alivio pasajero, porque después pueden aparecer nuevos deseos.','Compara algo que alegra un rato con algo que sostiene el bienestar durante más tiempo.'],
+ ['Comprender un concepto','¿Qué significa «atención desinteresada» para Simone Weil? Pon un ejemplo.','','Para Simone Weil, la atención desinteresada es intentar comprender qué le pasa y qué necesita la otra persona sin poner siempre por delante lo que yo quiero. Por ejemplo, si una amiga está triste, escucho lo que le sucede antes de decirle qué haría yo.','Piensa en cómo escuchas cuando tu objetivo es entender a la otra persona.'],
+ ['Comparar y justificar','¿Qué interpretación del amor te convence más, la de Aristófanes o la de Diotima? Justifica.','','Me convence más Diotima porque ayuda a explicar cómo cambia lo que valoramos al amar. Por ejemplo, al principio puede atraerme el físico y, con el tiempo, valorar más el carácter y las acciones de una persona.','Puedes elegir cualquiera. Di qué idea te convence y pon un ejemplo que apoye tu razón.']
+];
 const recorridosExamen = {
  ramas: ['Ramas de la filosofía',ramasExamen],
  mito: ['Tema 1 · ¿Qué significa filosofar?',[
@@ -345,7 +413,8 @@ const recorridosExamen = {
  ]],
  amor: ['Tema 2 · El amor',[
   ...preguntasExamen.slice(6,9).map((q,i)=>[...q,explicacionesExamen[i+6]]),
-  ...adicionalesExamen.slice(4,9)
+  ...adicionalesExamen.slice(4,9),
+  ...ampliacionAmor
  ]],
  conceptos: ['Conceptos de investigación',[
   [...preguntasExamen[9],explicacionesExamen[9]],adicionalesExamen[9]
@@ -356,8 +425,13 @@ function guiaExamen() {
  return `<section class="panel guia-examen" aria-labelledby="titulo-examen">
  <h2 id="titulo-examen">Qué tengo que saber para el examen</h2>
  <p>Elige un tema y practica una pregunta escrita cada vez. Cada pregunta tiene frases para empezar y una posible solución basada en lo trabajado en clase.</p>
- <div class="acciones">${Object.entries(recorridosExamen).map(([id,[titulo,banco]])=>
-  boton(`${titulo} · ${banco.length} preguntas`,`examen/${id}`,id==='ramas')).join('')}</div>
+ <div class="rejilla menu-temas">${[
+  ['mito','Tema 1 · ¿Qué significa filosofar?','Pon a prueba una idea, interpreta un mito y explica el paso al logos.','filosofar'],
+  ['amor','Tema 2 · El amor','Repasa a Aristófanes, Diotima, Schopenhauer y Simone Weil.','amor'],
+  ['ramas','Ramas de la filosofía','Identifica la rama y explica tu elección.','ramas'],
+  ['conceptos','Conceptos de investigación','Neomalthusianismo y keynesianismo.','taller/conceptos']
+ ].map(([id,titulo,resumen,teoria])=>`<article class="tarjeta"><h3>${titulo}</h3><p>${resumen}</p>
+ <div class="acciones">${boton(id==='conceptos'?'Ver conceptos y ejemplos':'Leer teoría breve',teoria)} ${boton(`Practicar · ${recorridosExamen[id][1].length} preguntas`,`examen/${id}`,true)}</div></article>`).join('')}</div>
  <details><summary>Cómo ayudarle en casa</summary>
  <ol><li>Leed la pregunta y mirad qué pide el primer paso.</li><li>Pedidle que complete una frase a la vez. Puede decirla primero en voz alta.</li><li>Abrid «Ver posible solución». Comprobad juntos si ha dado la idea y la razón que pide la pregunta.</li></ol></details>
  <h3>Para practicar la disertación</h3>
@@ -394,7 +468,16 @@ const guionesBreves = {
   [['Explica qué representa Penía.','Penía representa ___ .'],['Di qué aporta Poros.','Poros representa ___ . Por eso Eros siente que le falta algo y a la vez puede ___ .']],
   [['Explica la idea con tus palabras.','El deseo se educa cuando aprendemos a valorar ___ .'],['Pon un ejemplo de cambio.','Al principio puedo fijarme en ___ . Después puedo valorar ___ .']],
   [['Explica qué ayuda a entender la teoría.','Su teoría puede explicar ___ .'],['Señala un caso que cuesta explicar.','Una objeción es que no explica bien ___ . Por ejemplo, ___ .']],
-  [['Di en qué consiste escuchar.','Escuchar es intentar ___ .'],['Explica qué haces si no estás de acuerdo.','Puedo entender sus razones aunque ___ .']]
+  [['Di en qué consiste escuchar.','Escuchar es intentar ___ .'],['Explica qué haces si no estás de acuerdo.','Puedo entender sus razones aunque ___ .']],
+  [['Nombra a Diotima y la obra.','La Belleza en sí aparece en el discurso de ___ en ___ .'],['Define el término.','Significa ___ y es el último paso de ___ .']],
+  [['Di qué siente la persona.','La persona cree que ___ .'],['Explica qué fuerza actúa y hacia qué se orienta.','Según Schopenhauer, actúa ___, un impulso que orienta el enamoramiento hacia ___ .'],['Pon una objeción.','Esta idea deja con poca explicación ___ .']],
+  [['Explica qué mostraría el mito.','Aristófanes ayuda a entender por qué alguien busca ___ . Si lo lleva al extremo, ___ .'],['Aplica la atención de Weil.','Para Simone Weil, atender a otra persona implica ___ . Por eso, en este caso ___ .']],
+  [['Compara las frases.','La primera frase expresa ___ . La segunda muestra ___ .'],['Relaciona la diferencia con el mito.','El mito de Aristófanes ayuda a entender ___ .']],
+  [['Identifica la idea que vas a cuestionar.','La imagen de la media naranja sugiere que ___ .'],['Pon un caso y razona.','Puede ocurrir que ___ . Por eso ___ .']],
+  [['Pon dos ejemplos.','Una alegría momentánea sería ___ . Algo más duradero sería ___ .'],['Relaciona los ejemplos con el autor.','Para Schopenhauer, satisfacer un deseo puede dar ___, pero después ___ .']],
+  [['Define el concepto.','Para Simone Weil, la atención desinteresada es ___ .'],['Pon un ejemplo.','Por ejemplo, si ___, puedo ___ .']],
+  [['Elige a uno de los dos y da un motivo.','Me convence más ___ porque ___ .'],['Apoya tu razón con un caso.','Por ejemplo, ___ .']]
+
  ],
  conceptos: [
   [['Nombra al autor y explica la idea.','El keynesianismo se asocia con ___ . Su idea es que ___ .'],['Aplica la idea a una situación.','Por ejemplo, durante una recesión, ___ puede ayudar a ___ .']],
@@ -402,37 +485,50 @@ const guionesBreves = {
  ]
 };
 
-const ordenTemaUno = [0,1,7,5,3,2,6,9,4,8,10,11,12];
-const gruposTemaUno = [
- ['Empieza por los ejercicios que mandaron',0,5],
- ['Si ya has practicado lo anterior, prepara estas otras preguntas',5,13]
-];
+const planesRepaso = {
+ mito: {
+  orden:[0,1,7,5,3,2,6,9,4,8,10,11,12],
+  corte:5,
+  primero:'Empieza por los ejercicios que mandaron',
+  intro:'La hoja de ejercicios da prioridad a poner en duda una idea, interpretar un mito, comparar mito y logos, explicar el paso de uno a otro y preparar una disertación. Estas preguntas son ensayos basados en esas tareas y en el resto del tema.',
+  disertacion:['Ensayar la disertación del paso del mito al logos','dis-mito']
+ },
+ amor: {
+  orden:[3,4,8,0,14,1,9,10,2,11,12,13,6,7,5,15],
+  corte:8,
+  primero:'Empieza por las actividades de síntesis de clase',
+  intro:'Las actividades de síntesis y evaluación piden definir cinco conceptos con su autor, comparar a Aristófanes y Diotima, reconstruir el argumento de Schopenhauer y aplicar dos perspectivas a un caso. Practica primero esas tareas. Son una guía de repaso basada en la ficha de clase.',
+  disertacion:['Ensayar la disertación sobre el amor','dis-amor']
+ }
+};
 
-function indiceTemaUno(banco) {
- return `<section class="panel"><h2>Por dónde empezar</h2>
- <p>La hoja de ejercicios da prioridad a poner en duda una idea, interpretar un mito, comparar mito y logos, explicar el paso de uno a otro y preparar una disertación. Estas preguntas son ensayos basados en esas tareas y en el resto del tema.</p>
- ${gruposTemaUno.map(([nombre,desde,hasta])=>`<details ${desde===0?'open':''}><summary>${nombre}</summary><ol class="lista-tema" start="${desde+1}">
- ${ordenTemaUno.slice(desde,hasta).map((i,j)=>`<li><button type="button" data-pregunta-tema="${desde+j}">${banco[i][1]}</button></li>`).join('')}
- ${desde===0?`<li>${boton('Ensayar la disertación del paso del mito al logos','taller/dis-mito')}</li>`:''}
+function indiceRepaso(banco,plan) {
+ const {orden,corte,primero,intro,disertacion} = plan;
+ const grupos = [[primero,0,corte],['Más preguntas de las actividades de clase',corte,orden.length]];
+ return `<section class="panel"><h2>Por dónde empezar</h2><p>${intro}</p>
+ ${grupos.map(([nombre,desde,hasta])=>`<details ${desde===0?'open':''}><summary>${nombre}</summary><ol class="lista-tema" start="${desde+1}">
+ ${orden.slice(desde,hasta).map((i,j)=>`<li><button type="button" data-pregunta-tema="${desde+j}">${banco[i][1]}</button></li>`).join('')}
+ ${desde===0?`<li>${boton(disertacion[0],'taller/'+disertacion[1])}</li>`:''}
  </ol></details>`).join('')}</section>`;
 }
 
 function practicarExamen(id) {
  const [titulo,banco] = recorridosExamen[id];
- const esTemaUno = id === 'mito';
- const orden = esTemaUno ? ordenTemaUno : banco.map((_,i)=>i);
+ const plan = planesRepaso[id];
+ const orden = plan?.orden || banco.map((_,i)=>i);
  const borradores = banco.map(()=>'');
  let actual = 0;
- main.innerHTML = cabecera('Preguntas de examen · Respuesta escrita',titulo,'Lee la pregunta, usa el guion y compara tu respuesta con el modelo.') +
- boton('Volver a las preguntas de examen','inicio') + (esTemaUno ? indiceTemaUno(banco) : '') + '<section id="pregunta-examen" class="panel"></section>';
+ main.innerHTML = cabecera('Estás en · Preguntas escritas',titulo,'Lee o escucha la pregunta, usa el guion y compara tu respuesta con el modelo.') +
+ navTema(id,'preguntas') + (plan ? indiceRepaso(banco,plan) : '') + '<section id="pregunta-examen" class="panel"></section>';
  const panel = document.querySelector('#pregunta-examen');
  function mostrar(mover = true) {
+  detenerVoz();
   const numero = orden[actual];
   const [tipo,pregunta,,ejemplo,ayuda] = banco[numero];
   const pasos = id === 'ramas' ? guionesBreves.ramas : guionesBreves[id][numero];
   const frase = pasos.map(([,texto])=>texto.replaceAll('___ .','___.')).join(' ');
   panel.innerHTML = `${contador(actual,banco.length)}<p class="kicker">${tipo}</p>
-   <h2 id="consigna-examen" tabindex="-1">${pregunta}</h2>
+   <h2 id="consigna-examen" tabindex="-1">${pregunta}</h2><div data-audio-pregunta></div>
    <details><summary>Ver pista para entender la pregunta</summary><p>${ayuda}</p></details>
    <h3>Cómo responder</h3>
    <ol class="guion-respuesta">${pasos.map(([accion,texto])=>`<li><strong>${accion}</strong><p>«${texto.replaceAll('___ .','___.')}»</p></li>`).join('')}</ol>
@@ -443,6 +539,8 @@ function practicarExamen(id) {
     ${actual>0?'<button type="button" id="prev-examen">Anterior</button>':''}
     ${actual<banco.length-1?'<button type="button" id="next-examen" class="primario">Siguiente pregunta</button>':boton('Terminar y volver a la guía','inicio',true)}
    </div>`;
+  controlesAudio(panel.querySelector('[data-audio-pregunta]'), pregunta + ' ' + ayuda + ' ' + pasos.map(([accion,frase])=>accion + ' ' + frase.replaceAll('___',' espacio en blanco ')).join(' '), 'Escuchar pregunta y ayuda');
+  controlesAudio(panel.querySelector('.modelo-respuesta'),ejemplo,'Escuchar solución');
   const area = panel.querySelector('textarea');
   area.value = borradores[actual];
   area.oninput = () => { borradores[actual] = area.value; };
@@ -468,11 +566,7 @@ function practicarExamen(id) {
 
 function inicio() {
  main.innerHTML = cabecera('1.º de Bachillerato','Filosofía paso a paso','Estudia lo imprescindible y ensaya cómo responder con tus propias palabras.') +
- guiaExamen() + '<h2>¿Qué vas a estudiar?</h2>' +
- '<div class="rejilla">' + unidades.map(u =>
-  `<article class="tarjeta"><p class="kicker">${u.tema}</p><h3>${u.titulo}</h3><p>${u.resumen}</p>${boton('Abrir ' + u.titulo.toLowerCase(),u.id,true)}</article>`
- ).join('') + '</div>' +
- `<section class="panel"><h2>Cómo usar la aplicación</h2><ol class="pasos"><li>Lee la idea clave y abre el ejemplo.</li><li>Practica una pregunta cada vez. Puedes volver a intentarlo.</li><li>Escribe una respuesta y revísala con el modelo.</li></ol><p>Las preguntas sirven para ensayar lo trabajado en clase. Puedes hacerlas a tu ritmo.</p>${boton('Ir al taller de respuestas','taller')}</section>`;
+ guiaExamen();
 }
 const lecturaFacil = {
  filosofar: [
@@ -500,20 +594,24 @@ const lecturaFacil = {
 };
 
 function esquema(u) {
- main.innerHTML = cabecera(u.tema,u.titulo,u.resumen) + opcionesUnidad(u) +
+ main.innerHTML = cabecera('Estás en · Teoría breve',zonasTemas[temaPractica[u.id]].titulo,u.resumen) + navTema(temaPractica[u.id],'teoria') +
  '<section class="panel"><h2>Apuntes de apoyo</h2><p>Consulta estas fichas si necesitas entender una palabra de clase al preparar una respuesta.</p>' +
  u.fichas.map(([titulo,clave,exp,ej],i) => {
   const [facil,ejemploFacil] = lecturaFacil[u.id][i];
   return `<details class="ficha"><summary>${titulo}</summary>
    <p class="clave"><strong>Palabras de clase</strong><br>${clave}</p>
    <p><strong>En pocas palabras</strong><br>${facil}</p>
-   <p><strong>Ejemplo</strong><br>${ejemploFacil}</p>
+   <p><strong>Ejemplo</strong><br>${ejemploFacil}</p><div data-audio-teoria></div>
    <details><summary>Leer con más detalle</summary><p>${exp}</p><p>${ej}</p></details>
   </details>`;
  }).join('') + '</section>' + fuente(u.fuente);
+ main.querySelectorAll('[data-audio-teoria]').forEach((zona,i)=>{
+  const [facil,ejemplo] = lecturaFacil[u.id][i];
+  controlesAudio(zona,u.fichas[i][0] + '. ' + facil + ' Por ejemplo. ' + ejemplo,'Escuchar explicación');
+ });
 }
 function escribir(u) {
- main.innerHTML = cabecera(u.titulo,'Escribir una respuesta','Formula tu respuesta y compárala con el modelo.') + opcionesUnidad(u) +
+ main.innerHTML = cabecera(u.titulo,'Escribir una respuesta','Formula tu respuesta y compárala con el modelo.') + navTema(temaPractica[u.id],'preguntas') +
  `<section class="panel"><label for="consigna"><strong>Elige una pregunta</strong></label>
  <select id="consigna">${u.escritura.map(([p],i)=>`<option value="${i}">Pregunta ${i+1}</option>`).join('')}</select>
  <p class="kicker">Tu texto se conserva al cambiar de pregunta en esta pantalla. Cópialo antes de salir.</p><div id="respuesta"></div></section>` + fuente(u.fuente);
@@ -560,7 +658,9 @@ function taller(t) {
  const borrador = t.pasos.map(() => '');
  const frases = frasesDisertacion[t.id];
  let actual = 0;
- main.innerHTML = cabecera('Taller de respuestas',t.titulo,t.pregunta) +
+ const tema = { 'dis-amor':'amor', 'dis-mito':'mito', conceptos:'conceptos' }[t.id];
+ main.innerHTML = cabecera(frases ? 'Estás en · Disertación' : 'Taller de respuestas',t.titulo,t.pregunta) +
+ (tema ? navTema(tema,frases?'taller':'teoria') : '') +
  `<p>${t.detalle}</p><details class="panel"><summary>Ver todos los pasos</summary><ol class="pasos">${t.pasos.map(([nombre])=>`<li>${nombre}</li>`).join('')}</ol></details>
  ${frases ? '<p><strong>Empieza por una frase.</strong> Puedes copiar el inicio y rellenar los huecos. El ejemplo corto te enseña cómo. Amplía cada parte cuando tengas las ideas claras.</p>' : ''}
  <section id="pasos-taller" class="panel"></section>` + fuente(t.fuente) + boton('Volver al taller','taller');
@@ -579,9 +679,10 @@ function taller(t) {
    panel.querySelector('textarea').value = borrador.join('\n\n');
   } else {
    const [nombre,pista,modelo] = t.pasos[actual];
+   detenerVoz();
    const apoyo = frases?.[actual];
    panel.innerHTML = contador(actual,t.pasos.length) +
-    `<h2 id="paso-titulo" tabindex="-1">${nombre}</h2><p id="consigna-paso">${apoyo ? apoyo[0] : pista}</p>
+    `<h2 id="paso-titulo" tabindex="-1">${nombre}</h2><p id="consigna-paso">${apoyo ? apoyo[0] : pista}</p><div data-audio-paso></div>
      ${apoyo ? `<div class="estado"><p><strong>Frase para copiar</strong><br>${apoyo[1]}</p><p><strong>Ejemplo corto</strong><br>${apoyo[2]}</p><p><strong>Palabras que puedes usar</strong><br>${apoyo[3]}</p></div><button type="button" id="usar-frase">Poner la frase en mi borrador</button>` : ''}
      <label for="texto-paso"><strong>Mi borrador</strong></label>
      <textarea id="texto-paso" aria-describedby="paso-titulo consigna-paso"></textarea>
@@ -590,6 +691,7 @@ function taller(t) {
       ${actual ? '<button type="button" data-prev>Anterior</button>' : ''}
       <button type="button" class="primario" data-next>${actual + 1 === t.pasos.length ? 'Revisar el conjunto' : 'Siguiente paso'}</button>
      </div><p class="kicker">El borrador se conserva al pasar de un paso a otro. Copia el texto antes de salir del taller.</p>`;
+   controlesAudio(panel.querySelector('[data-audio-paso]'), nombre + '. ' + (apoyo ? apoyo[0] + ' Por ejemplo. ' + apoyo[2] : pista), 'Escuchar este paso');
    const area = panel.querySelector('textarea');
    area.value = borrador[actual];
    area.oninput = () => { borrador[actual] = area.value; };
@@ -621,6 +723,7 @@ function fuentes() {
  </ul>`;
 }
 function ruta(mover = false) {
+ detenerVoz();
  const [seccion,sub] = location.hash.slice(1).split('/');
  if (seccion === 'contenido') { main.focus(); return; }
  const u = unidades.find(item => item.id === seccion);
@@ -638,7 +741,7 @@ function ruta(mover = false) {
  } else if (seccion === 'fuentes') fuentes();
  else { inicio(); activa = 'inicio'; }
 
- for (const enlace of document.querySelectorAll('nav a')) {
+ for (const enlace of document.querySelectorAll('.navegacion a')) {
   if (enlace.hash === '#' + activa) enlace.setAttribute('aria-current','page');
   else enlace.removeAttribute('aria-current');
  }
