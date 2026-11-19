@@ -249,9 +249,33 @@ const opcionesUnidad = unidad => `<div class="acciones">
  ${boton('3. Escribir', unidad.id + '/3')}
  </div>`;
 
+function guiaExamen() {
+ const preguntas = [
+  ['Reconocer una rama','¿A qué rama pertenece «¿Podemos confiar en los sentidos?»? Justifica.','Pertenece a… porque pregunta por…','Pertenece a la epistemología porque examina si los sentidos son una fuente fiable de conocimiento.'],
+  ['Cuestionar una idea','Pon en duda «Si la mayoría lo cree, probablemente sea verdad».','¿Basta con…? Pienso que… porque… Una objeción sería…','¿Basta con que muchos lo crean? Un rumor puede ser falso aunque muchos lo repitan. Si la mayoría ha comprobado los hechos, su acuerdo sí aporta una razón.'],
+  ['Interpretar y comparar mito y logos','¿Cómo explica el mito de Deméter las estaciones? ¿En qué se diferencia de una explicación razonada?','El mito explica… mediante… Una explicación razonada busca…','El mito relaciona el regreso de Perséfone con el crecimiento de la vegetación. Una explicación razonada busca causas examinables, como la variación de luz debida a la inclinación del eje terrestre.'],
+  ['Definir el arjé','¿Qué es el arjé? Pon un ejemplo.','El arjé es… Para… ese principio era…','El arjé es el principio originario o fundamento común de la naturaleza. Tales propuso el agua.'],
+  ['Comparar interpretaciones','¿Fue el paso del mito al logos una ruptura o una transformación?','Burnet destaca… Cornford sostiene… Jaeger lo sitúa…','Burnet destaca la ruptura al buscar causas naturales. Cornford señala que se conservó la pregunta por el origen. Jaeger entiende el cambio como parte de un proceso cultural gradual.'],
+  ['Aplicar la razón crítica','¿Qué preguntaría la razón crítica ante un sistema de vigilancia?','La razón instrumental pregunta cómo… La crítica pregunta si…','Una cosa es calcular cómo vigilar con eficacia. Examinar si la vigilancia se justifica y qué efectos tiene sobre la libertad es propio de la razón crítica.'],
+  ['Explicar una idea de un autor del amor','¿Cómo explica Schopenhauer que nos enamoremos?','Según… el enamoramiento se explica por…','Según Schopenhauer, parece que elegimos libremente. Su teoría atribuye la atracción a la Voluntad de vivir, orientada a la reproducción. Repasa también unidad perdida, Eros y Belleza en sí, y atención.'],
+  ['Comparar autores del amor','¿En qué se parecen y se diferencian Aristófanes y Diotima?','Ambos… Para Aristófanes… Para Diotima…','Ambos relacionan amor y falta. Aristófanes habla de recuperar la unidad perdida. Diotima habla de buscar el bien y la belleza de forma duradera y de educar el deseo.'],
+  ['Aplicar una idea a un caso','¿Qué diría Simone Weil de «Si me quieres, tienes que pensar como yo»?','Desde la idea de atención, Weil diría que…','Para Weil, amar implica escuchar al otro y reconocer que tiene ideas propias. Puedo intentar entender sus razones aunque siga discrepando.'],
+  ['Explicar un concepto de investigación','¿Qué es el keynesianismo? Pon una aplicación.','Se asocia con… Su idea principal es… Por ejemplo…','Keynes destacó que una demanda insuficiente puede reducir el empleo. En una recesión, la inversión pública puede estimular esa demanda. Prepara la misma estructura para el neomalthusianismo.'],
+  ['Empezar una disertación','¿Qué es lo más importante al amar?','Yo pienso que lo más importante es ___ porque ___.','Yo pienso que lo más importante es escuchar a la otra persona porque así entiendo qué necesita.']
+ ];
+ return `<section class="panel guia-examen" aria-labelledby="titulo-examen">
+ <h2 id="titulo-examen">Qué tengo que saber para el examen</h2>
+ <p>Estas preguntas son de práctica y se basan en las actividades de clase. Abre una y prueba a responder en voz alta o por escrito.</p>
+ ${preguntas.map(([tipo,pregunta,inicio,ejemplo])=>`<details><summary>${tipo}</summary><p><strong>Te pueden preguntar.</strong> ${pregunta}</p><p><strong>Puedes empezar así.</strong> «${inicio}»</p><p><strong>Ejemplo corto.</strong> ${ejemplo}</p></details>`).join('')}
+ <h3>Si te piden una disertación, empieza aquí</h3>
+ <p>Una disertación es un texto en el que respondes a una pregunta y explicas por qué. Puedes copiar las frases del guion y completar los huecos.</p>
+ <div class="acciones">${boton('Guion sobre el amor','taller/dis-amor',true)} ${boton('Guion sobre mito y logos','taller/dis-mito')}</div>
+ </section>`;
+}
+
 function inicio() {
  main.innerHTML = cabecera('1.º de Bachillerato','Filosofía paso a paso','Estudia lo imprescindible y ensaya cómo responder con tus propias palabras.') +
- '<h2>¿Qué vas a estudiar?</h2>' +
+ guiaExamen() + '<h2>¿Qué vas a estudiar?</h2>' +
  '<div class="rejilla">' + unidades.map(u =>
   `<article class="tarjeta"><p class="kicker">${u.tema}</p><h3>${u.titulo}</h3><p>${u.resumen}</p>${boton('Abrir ' + u.titulo.toLowerCase(),u.id,true)}</article>`
  ).join('') + '</div>' +
@@ -335,11 +359,30 @@ function listadoTaller() {
   `<article class="tarjeta"><h2>${t.titulo}</h2><p>${t.pregunta}</p>${boton('Abrir guion','taller/' + t.id,true)}</article>`
  ).join('') + '</div>';
 }
+const frasesDisertacion = {
+ 'dis-mito': [
+  ['Di de qué vas a hablar y qué respuesta vas a defender. Esa respuesta es tu tesis.','En este texto voy a responder a esta pregunta: ___. Yo pienso que ___.','En este texto voy a responder si el logos rompió con el mito. Yo pienso que el cambio fue gradual.','ruptura · cambio gradual'],
+  ['Da una primera razón. Usa un ejemplo del tema para explicarla.','Mi primera razón es que ___. Por ejemplo, ___.','Mi primera razón es que se mantuvo la pregunta por el origen. Por ejemplo, los primeros filósofos buscaron ese origen en un principio natural, el arjé.','origen · arjé · principio natural'],
+  ['Da una segunda razón. Elige una idea distinta de la primera.','Mi segunda razón es que ___. Esto muestra que ___.','Mi segunda razón es que Platón seguía usando mitos. Esto muestra que los mitos pudieron convivir con los argumentos.','Platón · mito · argumento'],
+  ['Imagina que alguien no está de acuerdo. Escribe qué diría y contéstale. Eso es responder a una objeción.','Alguien podría decir que ___. Yo respondería que ___.','Alguien podría decir que buscar causas naturales supuso una ruptura. Yo respondería que cambiaron las explicaciones, aunque algunas preguntas siguieron siendo las mismas.','causa natural · tradición · continuidad'],
+  ['Vuelve a la pregunta. Resume lo que has defendido.','En conclusión, pienso que ___ porque ___.','En conclusión, pienso que fue un cambio gradual porque convivieron los mitos y las explicaciones razonadas.','cambio gradual · explicación razonada']
+ ],
+ 'dis-amor': [
+  ['Escribe la pregunta y elige una respuesta. Esa respuesta es tu tesis.','En este texto voy a responder a esta pregunta: ___. Creo que al amar lo más importante es ___.','En este texto voy a responder a esta pregunta: ¿qué es lo más importante al amar? Creo que lo más importante es reconocer a la otra persona.','amar · reconocer al otro'],
+  ['Escribe una idea de cada autor. Después escribe algo que compartan y algo en que se diferencien.','Para Aristófanes, ___. Para Diotima, ___. Para Weil, ___. Los dos primeros coinciden en ___. Se diferencian en ___.','Aristófanes habla de recuperar la unidad perdida. Diotima habla de buscar el bien y la belleza. Weil habla de prestar atención al otro. Los dos primeros coinciden en que el amor tiene que ver con una falta. Se diferencian en lo que buscamos.','unidad perdida · falta · bien y belleza · atención'],
+  ['Explica por qué estás de acuerdo con una de las ideas. Piensa en una situación concreta.','La idea de ___ me convence porque ___. Por ejemplo, ___.','La idea de Weil me convence porque escuchar ayuda a convivir. Por ejemplo, puedo intentar entender a alguien aunque pensemos distinto.','escuchar · comprender · discrepar'],
+  ['Imagina qué diría alguien que piensa distinto. Eso es una objeción. Después contéstale.','Alguien podría decir que ___. Yo respondería que ___.','Alguien podría decir que también escuchamos a personas a las que no amamos. Yo respondería que escuchar no explica por sí solo el amor, pero ayuda a cuidar una relación.','atracción · cuidado · atención'],
+  ['Responde otra vez a la pregunta y resume tu razón principal.','En conclusión, para mí amar es sobre todo ___ porque ___.','En conclusión, para mí amar es sobre todo reconocer al otro porque así puedo cuidar la relación y respetar sus decisiones.','reconocer · cuidar · respetar']
+ ]
+};
+
 function taller(t) {
  const borrador = t.pasos.map(() => '');
+ const frases = frasesDisertacion[t.id];
  let actual = 0;
  main.innerHTML = cabecera('Taller de respuestas',t.titulo,t.pregunta) +
  `<p>${t.detalle}</p><details class="panel"><summary>Ver todos los pasos</summary><ol class="pasos">${t.pasos.map(([nombre])=>`<li>${nombre}</li>`).join('')}</ol></details>
+ ${frases ? '<p><strong>Empieza por una frase.</strong> Puedes copiar el inicio y rellenar los huecos. El ejemplo corto te enseña cómo. Amplía cada parte cuando tengas las ideas claras.</p>' : ''}
  <section id="pasos-taller" class="panel"></section>` + fuente(t.fuente) + boton('Volver al taller','taller');
  const panel = document.querySelector('#pasos-taller');
  const palabras = texto => (texto.match(/[\p{L}\p{N}]+(?:[’'-][\p{L}\p{N}]+)*/gu) || []).length;
@@ -356,8 +399,10 @@ function taller(t) {
    panel.querySelector('textarea').value = borrador.join('\n\n');
   } else {
    const [nombre,pista,modelo] = t.pasos[actual];
+   const apoyo = frases?.[actual];
    panel.innerHTML = contador(actual,t.pasos.length) +
-    `<h2 id="paso-titulo" tabindex="-1">${nombre}</h2><p id="consigna-paso">${pista}</p>
+    `<h2 id="paso-titulo" tabindex="-1">${nombre}</h2><p id="consigna-paso">${apoyo ? apoyo[0] : pista}</p>
+     ${apoyo ? `<div class="estado"><p><strong>Frase para copiar</strong><br>${apoyo[1]}</p><p><strong>Ejemplo corto</strong><br>${apoyo[2]}</p><p><strong>Palabras que puedes usar</strong><br>${apoyo[3]}</p></div><button type="button" id="usar-frase">Poner la frase en mi borrador</button>` : ''}
      <label for="texto-paso"><strong>Mi borrador</strong></label>
      <textarea id="texto-paso" aria-describedby="paso-titulo consigna-paso"></textarea>
      <details><summary>Ver ejemplo de este paso</summary><p>${modelo}</p></details>
@@ -368,6 +413,14 @@ function taller(t) {
    const area = panel.querySelector('textarea');
    area.value = borrador[actual];
    area.oninput = () => { borrador[actual] = area.value; };
+   const usarFrase = panel.querySelector('#usar-frase');
+   if (usarFrase) usarFrase.onclick = () => {
+    area.value += (area.value ? '\n' : '') + apoyo[1];
+    borrador[actual] = area.value;
+    area.focus();
+    const hueco = area.value.indexOf('___', area.value.length - apoyo[1].length);
+    area.setSelectionRange(hueco,hueco+3);
+   };
    panel.querySelector('[data-next]').onclick = () => { actual++; mostrar(); };
   }
   const anterior = panel.querySelector('[data-prev]');
