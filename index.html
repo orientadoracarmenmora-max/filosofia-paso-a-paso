@@ -103,6 +103,9 @@ select{font:inherit;color:inherit;background:white;border:1px solid #6d8275;bord
 #capa-puntero.multiplicar{mix-blend-mode:multiply}
 main.puntero-activo{touch-action:none;cursor:crosshair}
 @media print{.barra-puntero,#capa-puntero{display:none!important}}
+.icono-puntero{display:inline-grid;place-items:center;width:2.75rem;height:2.75rem;padding:0;border-radius:50%}
+.icono-puntero svg{width:1.35rem;height:1.35rem;fill:none;stroke:currentColor;stroke-width:1.55;stroke-linejoin:round}
+.icono-puntero[aria-expanded=true]{background:#eaf0e5}
 </style>
 
 </head>
@@ -119,8 +122,8 @@ main.puntero-activo{touch-action:none;cursor:crosshair}
 </header>
 <div class="barra-puntero marco" id="barra-puntero" hidden>
  <div class="controles-puntero">
-  <button type="button" id="activar-puntero" aria-pressed="false"><span aria-hidden="true">◎</span> Puntero</button>
-  <button type="button" id="abrir-ajustes-puntero" aria-expanded="false" aria-controls="ajustes-puntero">Ajustes del puntero</button>
+  <button type="button" class="icono-puntero" id="activar-puntero" aria-label="Puntero" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg></button>
+  <button type="button" class="icono-puntero" id="abrir-ajustes-puntero" aria-label="Ajustes del puntero" aria-expanded="false" aria-controls="ajustes-puntero"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m10 3-.5 2.4-1.6.9-2.3-.8-2 3.5 1.8 1.6v1.8l-1.8 1.6 2 3.5 2.3-.8 1.6.9.5 2.4h4l.5-2.4 1.6-.9 2.3.8 2-3.5-1.8-1.6v-1.8l1.8-1.6-2-3.5-2.3.8-1.6-.9L14 3z"/><circle cx="12" cy="11.5" r="2.7"/></svg></button>
  </div>
  <section id="ajustes-puntero" class="panel ajustes-puntero" aria-label="Ajustes del puntero" hidden></section>
 </div>
