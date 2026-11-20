@@ -86,6 +86,23 @@ select{font:inherit;color:inherit;background:white;border:1px solid #6d8275;bord
 .altavoz{display:inline-grid;place-items:center;border-radius:50%;width:2.75rem;height:2.75rem;padding:0;font-size:1.18rem}
 .altavoz.sonando{color:white;background:var(--verde)}
 .solo-lector{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.barra-puntero{position:sticky;top:0;z-index:8;display:grid;justify-items:end;pointer-events:none}
+.barra-puntero[hidden],.ajustes-puntero[hidden],#capa-puntero[hidden]{display:none}
+.controles-puntero{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:.4rem;background:var(--papel);border:1px solid var(--borde);border-radius:.65rem;padding:.25rem;pointer-events:auto}
+.ajustes-puntero{position:absolute;top:100%;right:0;width:min(24rem,100%);max-height:70vh;overflow:auto;box-shadow:0 .4rem 1rem #18372f33;pointer-events:auto}
+.ajustes-puntero label{display:block}
+.ajustes-puntero fieldset:first-child label{display:inline-block;margin-right:1rem}
+.ajustes-puntero input[type=range]{display:block;width:100%;accent-color:#265745}
+.ajustes-puntero select{display:block;max-width:100%;margin-left:0}
+.paleta-puntero{display:flex;gap:.35rem;flex-wrap:wrap}
+.paleta-puntero button{width:2.75rem;padding:0;background:var(--tono);border-radius:50%}
+.paleta-puntero button[aria-pressed=true]{outline:3px solid #265745;outline-offset:2px}
+.muestra-puntero{isolation:isolate;position:relative;background:white;border-radius:.4rem;text-align:center;padding:1.4rem .3rem;margin-block:.75rem;font-weight:700}
+.muestra-puntero::after{content:"";pointer-events:none;position:absolute;inset-inline:.75rem;top:50%;height:var(--altura-muestra);transform:translateY(-50%);background:var(--color-muestra);opacity:var(--opacidad-muestra);mix-blend-mode:multiply}
+#capa-puntero{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:7}
+#capa-puntero.multiplicar{mix-blend-mode:multiply}
+main.puntero-activo{touch-action:none;cursor:crosshair}
+@media print{.barra-puntero,#capa-puntero{display:none!important}}
 </style>
 
 </head>
@@ -100,6 +117,14 @@ select{font:inherit;color:inherit;background:white;border:1px solid #6d8275;bord
   <a href="#inicio">Inicio</a><a href="#filosofar">Tema 1</a><a href="#ramas">Ramas</a><a href="#amor">Tema 2 · El amor</a><a href="#taller">Taller de respuestas</a>
  </nav>
 </header>
+<div class="barra-puntero marco" id="barra-puntero" hidden>
+ <div class="controles-puntero">
+  <button type="button" id="activar-puntero" aria-pressed="false"><span aria-hidden="true">◎</span> Puntero</button>
+  <button type="button" id="abrir-ajustes-puntero" aria-expanded="false" aria-controls="ajustes-puntero">Ajustes del puntero</button>
+ </div>
+ <section id="ajustes-puntero" class="panel ajustes-puntero" aria-label="Ajustes del puntero" hidden></section>
+</div>
+<canvas id="capa-puntero" aria-hidden="true" hidden></canvas>
 <main id="contenido" class="marco" tabindex="-1"></main>
 <footer class="marco">Filosofía · 1.º de Bachillerato <a href="#fuentes">Materiales de clase</a></footer>
 <noscript>Activa JavaScript para abrir los esquemas y hacer la práctica.</noscript>
@@ -783,30 +808,32 @@ function listadoTaller() {
 }
 const frasesDisertacion = {
  'dis-mito': [
-  ['Di de qué vas a hablar y qué respuesta vas a defender. Esa respuesta es tu tesis.','En este texto voy a responder a esta pregunta: ___. Yo pienso que ___.','En este texto voy a responder si el logos rompió con el mito. Yo pienso que el cambio fue gradual.','ruptura · cambio gradual'],
-  ['Da una primera razón. Usa un ejemplo del tema para explicarla.','Mi primera razón es que ___. Por ejemplo, ___.','Mi primera razón es que se mantuvo la pregunta por el origen. Por ejemplo, los primeros filósofos buscaron ese origen en un principio natural, el arjé.','origen · arjé · principio natural'],
-  ['Da una segunda razón. Elige una idea distinta de la primera.','Mi segunda razón es que ___. Esto muestra que ___.','Mi segunda razón es que Platón seguía usando mitos. Esto muestra que los mitos pudieron convivir con los argumentos.','Platón · mito · argumento'],
-  ['Imagina que alguien no está de acuerdo. Escribe qué diría y contéstale. Eso es responder a una objeción.','Alguien podría decir que ___. Yo respondería que ___.','Alguien podría decir que buscar causas naturales supuso una ruptura. Yo respondería que cambiaron las explicaciones, aunque algunas preguntas siguieron siendo las mismas.','causa natural · tradición · continuidad'],
-  ['Vuelve a la pregunta. Resume lo que has defendido.','En conclusión, pienso que ___ porque ___.','En conclusión, pienso que fue un cambio gradual porque convivieron los mitos y las explicaciones razonadas.','cambio gradual · explicación razonada']
+  ["Di de qué vas a hablar y qué respuesta vas a defender. Esa respuesta es tu tesis.", "En este texto voy a responder a esta pregunta: ___ Yo pienso que ___.", ["¿El paso del mito al logos fue una ruptura o una transformación?", "fue una transformación gradual de la forma de explicar el mundo: cambiaron las razones que se daban, pero se mantuvieron algunas preguntas importantes"], "ruptura · cambio gradual"],
+  ["Da una primera razón. Usa un ejemplo del tema para explicarla.", "Mi primera razón es que ___. Por ejemplo, ___.", ["se mantuvo la pregunta por el origen del mundo", "los primeros filósofos buscaron ese origen en un principio natural, el arjé. Esto apoya la interpretación de Cornford porque mantuvieron una pregunta antigua y la respondieron de otra manera"], "origen · arjé · principio natural"],
+  ["Da una segunda razón. Elige una idea distinta de la primera.", "Mi segunda razón es que ___. Esto muestra que ___.", ["Platón seguía usando mitos en sus diálogos", "los mitos pudieron convivir con los argumentos. Por eso, el uso de explicaciones razonadas no supuso que desaparecieran los relatos tradicionales"], "Platón · mito · argumento"],
+  ["Imagina que alguien no está de acuerdo. Escribe qué diría y contéstale. Eso es responder a una objeción.", "Alguien podría decir que ___. Yo respondería que ___.", ["buscar causas naturales y someterlas a crítica supuso una ruptura, como señala Burnet", "esa novedad fue importante, pero cambiar el modo de explicar algo no obliga a abandonar todas las preguntas y relatos anteriores"], "causa natural · tradición · continuidad"],
+  ["Vuelve a la pregunta. Resume lo que has defendido.", "En conclusión, pienso que ___ porque ___.", ["fue un cambio gradual", "cambió la manera de justificar las explicaciones y, al mismo tiempo, continuaron algunas preguntas y usos del mito. Hablar de transformación permite explicar ambas cosas"], "cambio gradual · explicación razonada"]
  ],
  'dis-amor': [
-  ['Escribe la pregunta y elige una respuesta. Esa respuesta es tu tesis.','En este texto voy a responder a esta pregunta: ___. Creo que al amar lo más importante es ___.','En este texto voy a responder a esta pregunta: ¿qué es lo más importante al amar? Creo que lo más importante es reconocer a la otra persona.','amar · reconocer al otro'],
-  ['Escribe una idea de cada autor. Después escribe algo que compartan y algo en que se diferencien.','Para Aristófanes, ___. Para Diotima, ___. Para Weil, ___. Los dos primeros coinciden en ___. Se diferencian en ___.','Aristófanes habla de recuperar la unidad perdida. Diotima habla de buscar el bien y la belleza. Weil habla de prestar atención al otro. Los dos primeros coinciden en que el amor tiene que ver con una falta. Se diferencian en lo que buscamos.','unidad perdida · falta · bien y belleza · atención'],
-  ['Explica por qué estás de acuerdo con una de las ideas. Piensa en una situación concreta.','La idea de ___ me convence porque ___. Por ejemplo, ___.','La idea de Weil me convence porque escuchar ayuda a convivir. Por ejemplo, puedo intentar entender a alguien aunque pensemos distinto.','escuchar · comprender · discrepar'],
-  ['Imagina qué diría alguien que piensa distinto. Eso es una objeción. Después contéstale.','Alguien podría decir que ___. Yo respondería que ___.','Alguien podría decir que también escuchamos a personas a las que no amamos. Yo respondería que escuchar no explica por sí solo el amor, pero ayuda a cuidar una relación.','atracción · cuidado · atención'],
-  ['Responde otra vez a la pregunta y resume tu razón principal.','En conclusión, para mí amar es sobre todo ___ porque ___.','En conclusión, para mí amar es sobre todo reconocer al otro porque así puedo cuidar la relación y respetar sus decisiones.','reconocer · cuidar · respetar']
+  ["Escribe la pregunta y elige una respuesta. Esa respuesta es tu tesis.", "En este texto voy a responder a esta pregunta: ___ Creo que al amar lo más importante es ___.", ["¿qué es lo más importante al amar?", "reconocer a la otra persona. Podemos sentir atracción, buscar compañía o querer cuidar a alguien, pero esa atención ayuda a construir una relación duradera"], "amar · reconocer al otro"],
+  ["Escribe una idea de cada autor. Después escribe algo que compartan y algo en que se diferencien.", "Para Aristófanes, ___. Para Diotima, ___. Para Weil, ___. Los dos primeros coinciden en ___. Se diferencian en ___.", ["amar es buscar la unidad perdida. Su mito presenta la separación como una falta que impulsa a cada mitad a reunirse con la otra", "amar es desear el bien y la belleza de forma duradera. Ese deseo puede educarse y pasar de la atracción física a valorar el carácter, las acciones y el conocimiento", "amar implica prestar atención a una persona distinta de nosotros y tratar de comprender lo que piensa y necesita", "relacionar el amor con algo que falta", "lo que se busca: recuperar la unidad en Aristófanes y alcanzar el bien y la belleza en Diotima"], "unidad perdida · falta · bien y belleza · atención"],
+  ["Explica por qué estás de acuerdo con una de las ideas. Piensa en una situación concreta.", "La idea de ___ me convence porque ___. Por ejemplo, ___.", ["Weil", "permite distinguir el cuidado de la dependencia", "ante un desacuerdo puedo escuchar a mi pareja sin exigirle que piense igual. Reconocer su punto de vista permite cuidar el vínculo y respetar sus decisiones"], "escuchar · comprender · discrepar"],
+  ["Imagina qué diría alguien que piensa distinto. Eso es una objeción. Después contéstale.", "Alguien podría decir que ___. Yo respondería que ___.", ["también escuchamos a personas a las que no amamos", "escuchar por sí solo no explica la atracción. Aun así, en una relación sostenida ayuda a que el deseo de unión sea compatible con el respeto por quien tenemos delante"], "atracción · cuidado · atención"],
+  ["Responde otra vez a la pregunta y resume tu razón principal.", "En conclusión, para mí amar es sobre todo ___ porque ___.", ["reconocer al otro", "así puedo cuidar la relación y respetar sus decisiones. El deseo y la sensación de falta pueden iniciar el vínculo. La atención ayuda a convertirlo en cuidado"], "reconocer · cuidar · respetar"]
  ]
 };
+
 
 function taller(t) {
  const borrador = t.pasos.map(() => '');
  const frases = frasesDisertacion[t.id];
+ const soluciones = t.pasos.map(([, ,modelo],i)=>frases ? completarGuion(frases[i][1],frases[i][2]) : modelo);
  let actual = 0;
  const tema = { 'dis-amor':'amor', 'dis-mito':'mito', conceptos:'conceptos' }[t.id];
  main.innerHTML = cabecera(frases ? 'Estás en · Disertación' : 'Taller de respuestas',t.titulo,t.pregunta) +
  (tema ? navTema(tema,frases?'taller':'teoria') : '') +
  `<p>${t.detalle}</p><details class="panel"><summary>Ver todos los pasos</summary><ol class="pasos">${t.pasos.map(([nombre])=>`<li>${nombre}</li>`).join('')}</ol></details>
- ${frases ? '<p><strong>Empieza por una frase.</strong> Puedes copiar el inicio y rellenar los huecos. El ejemplo corto te enseña cómo. Amplía cada parte cuando tengas las ideas claras.</p>' : ''}
+ ${frases ? '<p><strong>Empieza por una frase.</strong> Puedes copiar el inicio y rellenar los huecos. La posible solución completa los mismos huecos. Amplía cada parte cuando tengas las ideas claras.</p>' : ''}
  <section id="pasos-taller" class="panel"></section>` + fuente(t.fuente) + boton('Volver al taller','taller');
  const panel = document.querySelector('#pasos-taller');
  const palabras = texto => (texto.match(/[\p{L}\p{N}]+(?:[’'-][\p{L}\p{N}]+)*/gu) || []).length;
@@ -816,18 +843,19 @@ function taller(t) {
    <label for="texto-final"><strong>Texto reunido</strong></label>
    <textarea id="texto-final" readonly rows="11"></textarea>
    ${t.rango ? `<p>${palabras(borrador.join(' '))} palabras. Extensión de la tarea: ${t.rango.join('–')} palabras.</p>` : ''}
-   <details class="modelo-respuesta"><summary>Ver posible solución completa</summary>${t.pasos.map(([nombre,,modelo])=>`<h3>${nombre}</h3><p>${modelo}</p>`).join('')}</details>
+   <details class="modelo-respuesta"><summary>Ver posible solución completa</summary>${t.pasos.map(([nombre],i)=>`<h3>${nombre}</h3><p>${soluciones[i]}</p>`).join('')}</details>
    <fieldset><legend>Lista de revisión</legend>${t.pasos.map(([nombre])=>`<label class="opcion"><input type="checkbox"> He revisado este apartado · ${nombre}</label>`).join('')}</fieldset>
    <p>Para guardar una copia, selecciona el texto y cópialo.</p>
    <button type="button" data-prev>Volver al último paso</button>`;
    panel.querySelector('textarea').value = borrador.join('\n\n');
   } else {
-   const [nombre,pista,modelo] = t.pasos[actual];
+   const [nombre,pista] = t.pasos[actual];
+   const modelo = soluciones[actual];
    detenerVoz();
    const apoyo = frases?.[actual];
    panel.innerHTML = contador(actual,t.pasos.length) +
     `<h2 id="paso-titulo" tabindex="-1">${nombre}</h2><p id="consigna-paso">${apoyo ? apoyo[0] : pista}</p><div data-audio-paso></div>
-     ${apoyo ? `<div class="estado"><p><strong>Frase para copiar</strong><br>${apoyo[1]}</p><p><strong>Ejemplo corto</strong><br>${apoyo[2]}</p><p><strong>Palabras que puedes usar</strong><br>${apoyo[3]}</p></div><button type="button" id="usar-frase">Poner la frase en mi borrador</button>` : ''}
+     ${apoyo ? `<div class="estado"><p><strong>Frase para copiar</strong><br>${apoyo[1]}</p><p><strong>Palabras que puedes usar</strong><br>${apoyo[3]}</p></div><button type="button" id="usar-frase">Poner la frase en mi borrador</button>` : ''}
      <label for="texto-paso"><strong>Mi borrador</strong></label>
      <textarea id="texto-paso" aria-describedby="paso-titulo consigna-paso"></textarea>
      <details class="modelo-respuesta"><summary>Ver posible solución de este paso</summary><p>${modelo}</p></details>
@@ -835,7 +863,8 @@ function taller(t) {
       ${actual ? '<button type="button" data-prev>Anterior</button>' : ''}
       <button type="button" class="primario" data-next>${actual + 1 === t.pasos.length ? 'Revisar el conjunto' : 'Siguiente paso'}</button>
      </div><p class="kicker">El borrador se conserva al pasar de un paso a otro. Copia el texto antes de salir del taller.</p>`;
-   controlesAudio(panel.querySelector('[data-audio-paso]'), nombre + '. ' + (apoyo ? apoyo[0] + ' Por ejemplo. ' + apoyo[2] : pista), 'Escuchar este paso');
+   controlesAudio(panel.querySelector('[data-audio-paso]'), nombre + '. ' + (apoyo ? apoyo[0] + ' ' + apoyo[1].replaceAll('___',' espacio en blanco ') : pista), 'Escuchar este paso');
+   controlesAudio(panel.querySelector('.modelo-respuesta'),modelo,'Escuchar solución');
    const area = panel.querySelector('textarea');
    area.value = borrador[actual];
    area.oninput = () => { borrador[actual] = area.value; };
@@ -899,6 +928,265 @@ document.querySelector('.salto').addEventListener('click', evento => {
  evento.preventDefault();
  main.focus();
 });
+
+(() => {
+ const superficie = document.querySelector('main');
+ const barra = document.querySelector('#barra-puntero');
+ const panel = document.querySelector('#ajustes-puntero');
+ const activar = document.querySelector('#activar-puntero');
+ const abrirAjustes = document.querySelector('#abrir-ajustes-puntero');
+ const lienzo = document.querySelector('#capa-puntero');
+ const ctx = lienzo.getContext('2d');
+ const clave = 'filosofia-puntero';
+ const ajustes = {modo:'dot', libre:true, estilo:'fine', borrado:'auto', color:'#E13469', ancho:16, opacidad:90, duracion:1.8};
+ const tonos = [['Amarillo vainilla','#FFE582'],['Rosa pastel','#FFACCA'],['Melocotón pastel','#FFC395'],['Menta pastel','#A9EBC2'],['Azul cielo','#A6DDFC'],['Lila pastel','#D7B9FC']];
+ try {
+  const anteriores = JSON.parse(localStorage.getItem(clave) || '{}');
+  for (const campo of Object.keys(ajustes)) {
+   if (typeof anteriores[campo] === typeof ajustes[campo]) ajustes[campo] = anteriores[campo];
+  }
+ } catch {}
+ panel.innerHTML = `<fieldset><legend>Modo</legend>
+ <label><input name="modo" type="radio" value="dot"> Punto</label>
+ <label><input name="modo" type="radio" value="line"> Trazo</label></fieldset>
+ <label><input name="libre" type="checkbox"> Trazo sin pulsar</label>
+ <label>Estilo del rastro <select name="estilo"><option value="fine">Láser fino</option><option value="solid">Continuo</option><option value="dots">Punteado</option><option value="dashes">Discontinuo</option><option value="glow">Luminoso</option><option value="marker">Subrayador</option></select></label>
+ <label>Cómo se borra <select name="borrado"><option value="auto">Según el estilo</option><option value="smooth">Suave, todo a la vez</option><option value="tail">Desde el principio, como una cola</option><option value="thin">Se afina hasta desaparecer</option><option value="cut">De golpe</option></select></label>
+ <label>Color libre <input name="color" type="color"></label>
+ <fieldset><legend>Tonos pastel</legend><div class="paleta-puntero">${tonos.map(([nombre,color])=>`<button type="button" aria-label="${nombre}" title="${nombre}" data-tono="${color}" style="--tono:${color}"></button>`).join('')}</div></fieldset>
+ <label>Tamaño <input name="ancho" type="range" min="4" max="45" step="1"><output data-valor="ancho"></output></label>
+ <label>Opacidad <input name="opacidad" type="range" min="10" max="100" step="1"><output data-valor="opacidad"></output></label>
+ <label>Duración del rastro <input name="duracion" type="range" min=".2" max="8" step=".1"><output data-valor="duracion"></output></label>
+ <div class="muestra-puntero"><span>Texto de ejemplo del subrayador</span></div>
+ <p>Con la página enfocada, usa las flechas para señalar y Escape para borrar el rastro.</p>`;
+
+ let activo = false;
+ let cuadro = 0;
+ let punto;
+ let trazos = [];
+ let trazo;
+ let teclado;
+ let gesto;
+ let suprimirClic = false;
+ const duracion = () => ajustes.duracion * 1000;
+ const limitar = (n,min=0,max=1) => Math.max(min,Math.min(max,n));
+ function actualizarAjustes() {
+  for (const campo of panel.querySelectorAll('[name]')) {
+   const valor = ajustes[campo.name];
+   if (campo.type === 'radio') campo.checked = campo.value === valor;
+   else if (campo.type === 'checkbox') campo.checked = valor;
+   else campo.value = valor;
+  }
+  for (const [nombre,unidad] of [['ancho','px'],['opacidad','%'],['duracion','s']]) {
+   panel.querySelector(`[data-valor="${nombre}"]`).value = ajustes[nombre]+' '+unidad;
+  }
+  panel.querySelectorAll('[data-tono]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tono.toLowerCase()===ajustes.color.toLowerCase())));
+  const muestra = panel.querySelector('.muestra-puntero');
+  muestra.style.setProperty('--color-muestra',ajustes.color);
+  muestra.style.setProperty('--altura-muestra',ajustes.ancho+'px');
+  muestra.style.setProperty('--opacidad-muestra',ajustes.opacidad/100);
+  lienzo.classList.toggle('multiplicar',ajustes.modo==='line' && ajustes.estilo==='marker');
+ }
+ function cambiar(nombre,valor) {
+  ajustes[nombre] = valor;
+  try {localStorage.setItem(clave,JSON.stringify(ajustes));} catch {}
+  limpiar();
+  actualizarAjustes();
+ }
+ panel.addEventListener('input',e=>{
+  const c = e.target;
+  if (!c.name) return;
+  cambiar(c.name,c.type==='checkbox'?c.checked:c.type==='range'?Number(c.value):c.value);
+ });
+ panel.addEventListener('click',e=>{
+  const tono=e.target.closest('[data-tono]');
+  if(tono) cambiar('color',tono.dataset.tono);
+ });
+ function limpiar() {
+  cancelAnimationFrame(cuadro);
+  cuadro=0;
+  trazos=[];
+  trazo=punto=teclado=undefined;
+  if(gesto && superficie.hasPointerCapture(gesto.id)) superficie.releasePointerCapture(gesto.id);
+  gesto=undefined;
+  ctx.clearRect(0,0,lienzo.width,lienzo.height);
+ }
+ function activarPuntero(valor) {
+  activo=valor;
+  activar.setAttribute('aria-pressed',String(activo));
+  superficie.classList.toggle('puntero-activo',activo);
+  lienzo.hidden=!activo;
+  limpiar();
+  if(activo) superficie.focus({preventScroll:true});
+ }
+ activar.onclick=()=>activarPuntero(!activo);
+ abrirAjustes.onclick=()=>{
+  panel.hidden=!panel.hidden;
+  abrirAjustes.setAttribute('aria-expanded',String(!panel.hidden));
+ };
+ function pedirCuadro() {
+  if(!cuadro) cuadro=requestAnimationFrame(dibujar);
+ }
+ function linea(puntos,alpha,factor,distancia) {
+  if(alpha<=0 || factor<=0) return;
+  const ancho=ajustes.ancho;
+  const estilo=ajustes.estilo;
+  ctx.save();
+  ctx.globalAlpha=alpha;
+  ctx.strokeStyle=ajustes.color;
+  ctx.lineWidth=(estilo==='fine'?Math.max(1.5,ancho*.36):ancho)*factor;
+  ctx.lineCap=estilo==='marker'?'square':'round';
+  ctx.lineJoin='round';
+  if(estilo==='fine'||estilo==='glow'){
+   ctx.shadowColor=ajustes.color;
+   ctx.shadowBlur=ancho*factor*(estilo==='fine'?.35:1);
+  }
+  if(estilo==='dots'||estilo==='dashes'){
+   ctx.setLineDash([estilo==='dots'?.15:ancho*1.65,ancho*1.7]);
+   ctx.lineDashOffset=-distancia;
+  }
+  ctx.beginPath();
+  ctx.moveTo(puntos[0].x,puntos[0].y);
+  if(puntos.length===1) ctx.lineTo(puntos[0].x+.01,puntos[0].y);
+  for(const p of puntos.slice(1)) ctx.lineTo(p.x,p.y);
+  ctx.stroke();
+  if(estilo==='fine'){
+   ctx.shadowBlur=0;
+   ctx.strokeStyle='#fff';
+   ctx.lineWidth=Math.max(.5*factor,ctx.lineWidth*.40);
+   ctx.stroke();
+  }
+  ctx.restore();
+ }
+ function dibujar(ahora) {
+  cuadro=0;
+  const ratio=Math.min(devicePixelRatio||1,2);
+  const ancho=innerWidth, alto=innerHeight;
+  if(lienzo.width!==Math.round(ancho*ratio)||lienzo.height!==Math.round(alto*ratio)){
+   lienzo.width=Math.round(ancho*ratio);
+   lienzo.height=Math.round(alto*ratio);
+  }
+  ctx.setTransform(ratio,0,0,ratio,0,0);
+  ctx.clearRect(0,0,ancho,alto);
+  const r=superficie.getBoundingClientRect();
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(r.left,r.top,r.width,r.height);
+  ctx.clip();
+  const opacidad=ajustes.opacidad/100;
+  const efecto=ajustes.borrado==='auto'?(ajustes.estilo==='fine'?'smooth':'tail'):ajustes.borrado;
+  for(const paso of trazos){
+   const {puntos,ultimo}=paso;
+   if(efecto==='tail'){
+    while(puntos.length>1 && ahora-puntos[1].tiempo>=duracion()) puntos.shift();
+    const grupos=new Map();
+    for(let n=0;n<puntos.length;n++){
+     const p=puntos[n];
+     const alpha=Math.round(16*limitar((1-(ahora-p.tiempo)/duracion())/.45))/16;
+     if(!alpha) continue;
+     const previo=puntos[Math.max(0,n-1)];
+     const grupo=grupos.get(alpha);
+     if(grupo) grupo.puntos.push(p);
+     else grupos.set(alpha,{puntos:previo===p?[p]:[previo,p],distancia:previo.distancia});
+    }
+    for(const [alpha,g] of grupos) linea(g.puntos,opacidad*alpha,1,g.distancia);
+   }else{
+    const edad=paso===trazo && gesto ? 0 : ahora-ultimo;
+    const restante=limitar(1-edad/duracion());
+    const alpha=efecto==='cut'?Number(restante>0):limitar(restante/.7);
+    linea(puntos,opacidad*alpha,efecto==='thin'?alpha:1,0);
+   }
+  }
+  trazos=trazos.filter(paso=>(paso===trazo && gesto)||ahora-paso.ultimo<duracion());
+  if(trazo&&!trazos.includes(trazo)) trazo=undefined;
+  if(punto){
+   const restante=punto.fijo?1:limitar(1-(ahora-punto.tiempo)/duracion());
+   ctx.globalAlpha=opacidad*limitar(restante/.3);
+   ctx.fillStyle=ajustes.color;
+   ctx.shadowColor=ajustes.color;
+   ctx.shadowBlur=8;
+   ctx.strokeStyle='#fff';
+   ctx.lineWidth=1.5;
+   ctx.beginPath();
+   ctx.arc(punto.x,punto.y,ajustes.ancho/2,0,Math.PI*2);
+   ctx.fill();
+   ctx.stroke();
+   if(!restante) punto=undefined;
+  }
+  ctx.restore();
+  if(trazos.length || (punto&&!punto.fijo)) pedirCuadro();
+ }
+ function colocar(x,y,fijo=false) {
+  const tiempo=performance.now();
+  if(ajustes.modo==='dot') punto={x,y,tiempo,fijo};
+  else {
+   if(!trazo || (!gesto && tiempo-trazo.ultimo>=duracion())){
+    trazo={puntos:[],ultimo:tiempo};
+    trazos.push(trazo);
+   }
+   const anterior=trazo.puntos.at(-1);
+   const distancia=anterior?anterior.distancia+Math.hypot(x-anterior.x,y-anterior.y):0;
+   if(!anterior || x!==anterior.x || y!==anterior.y) trazo.puntos.push({x,y,tiempo,distancia});
+   trazo.ultimo=tiempo;
+  }
+  pedirCuadro();
+ }
+ function salir() {
+  trazo=undefined;
+  if(punto?.fijo) {
+   punto.fijo=false;
+   punto.tiempo=performance.now();
+   pedirCuadro();
+  }
+ }
+ const controles='a,button,input,textarea,select,summary,label,[contenteditable]';
+ superficie.addEventListener('pointerdown',e=>{
+  if(!activo || e.button!==0 || e.target.closest(controles)) return;
+  e.preventDefault();
+  superficie.focus({preventScroll:true});
+  gesto={id:e.pointerId};
+  suprimirClic=true;
+  superficie.setPointerCapture(e.pointerId);
+  colocar(e.clientX,e.clientY,true);
+ });
+ superficie.addEventListener('pointermove',e=>{
+  if(!activo) return;
+  const caja=superficie.getBoundingClientRect();
+  if(e.clientX<caja.left||e.clientX>=caja.right||e.clientY<caja.top||e.clientY>=caja.bottom){salir();return;}
+  if(gesto?.id===e.pointerId || (e.pointerType!=='touch'&&(ajustes.modo==='dot'||ajustes.libre))) {
+   colocar(e.clientX,e.clientY,true);
+  }
+ });
+ superficie.addEventListener('pointerleave',salir);
+ for(const tipo of ['pointerup','pointercancel','lostpointercapture']) superficie.addEventListener(tipo,e=>{
+  if(gesto?.id!==e.pointerId) return;
+  gesto=undefined;
+  if(e.pointerType==='touch'||tipo==='pointercancel') salir();
+  else trazo=undefined;
+  setTimeout(()=>{suprimirClic=false;},0);
+ });
+ superficie.addEventListener('click',e=>{
+  if(suprimirClic){e.preventDefault();e.stopPropagation();}
+ },true);
+ superficie.addEventListener('keydown',e=>{
+  if(!activo||e.target!==superficie) return;
+  const movimientos={ArrowLeft:[-12,0],ArrowRight:[12,0],ArrowUp:[0,-12],ArrowDown:[0,12]};
+  const delta=movimientos[e.key];
+  if(!delta) return;
+  e.preventDefault();
+  const r=superficie.getBoundingClientRect();
+  const x0=Math.max(r.left,0),y0=Math.max(r.top,0);
+  const x1=Math.min(r.right,innerWidth),y1=Math.min(r.bottom,innerHeight);
+  teclado ||= {x:(x0+x1)/2,y:(y0+y1)/2};
+  teclado={x:limitar(teclado.x+delta[0],x0,x1),y:limitar(teclado.y+delta[1],y0,y1)};
+  colocar(teclado.x,teclado.y,true);
+ });
+ document.addEventListener('keydown',e=>{if(activo&&e.key==='Escape') limpiar();});
+ window.addEventListener('blur',salir);
+ for(const evento of ['resize','scroll','hashchange','beforeprint']) window.addEventListener(evento,limpiar);
+ barra.removeAttribute('hidden');
+ actualizarAjustes();
+})();
 
 </script>
 </body>
