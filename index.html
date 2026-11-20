@@ -938,7 +938,7 @@ document.querySelector('.salto').addEventListener('click', evento => {
  const lienzo = document.querySelector('#capa-puntero');
  const ctx = lienzo.getContext('2d');
  const clave = 'filosofia-puntero';
- const ajustes = {modo:'dot', libre:true, estilo:'fine', borrado:'auto', color:'#E13469', ancho:16, opacidad:90, duracion:1.8};
+ const ajustes = {modo:'dot', estilo:'fine', borrado:'auto', color:'#E13469', ancho:16, opacidad:90, duracion:1.8};
  const tonos = [['Amarillo vainilla','#FFE582'],['Rosa pastel','#FFACCA'],['Melocotón pastel','#FFC395'],['Menta pastel','#A9EBC2'],['Azul cielo','#A6DDFC'],['Lila pastel','#D7B9FC']];
  try {
   const anteriores = JSON.parse(localStorage.getItem(clave) || '{}');
@@ -949,7 +949,6 @@ document.querySelector('.salto').addEventListener('click', evento => {
  panel.innerHTML = `<fieldset><legend>Modo</legend>
  <label><input name="modo" type="radio" value="dot"> Punto</label>
  <label><input name="modo" type="radio" value="line"> Trazo</label></fieldset>
- <label><input name="libre" type="checkbox"> Trazo sin pulsar</label>
  <label>Estilo del rastro <select name="estilo"><option value="fine">Láser fino</option><option value="solid">Continuo</option><option value="dots">Punteado</option><option value="dashes">Discontinuo</option><option value="glow">Luminoso</option><option value="marker">Subrayador</option></select></label>
  <label>Cómo se borra <select name="borrado"><option value="auto">Según el estilo</option><option value="smooth">Suave, todo a la vez</option><option value="tail">Desde el principio, como una cola</option><option value="thin">Se afina hasta desaparecer</option><option value="cut">De golpe</option></select></label>
  <label>Color libre <input name="color" type="color"></label>
@@ -958,7 +957,7 @@ document.querySelector('.salto').addEventListener('click', evento => {
  <label>Opacidad <input name="opacidad" type="range" min="10" max="100" step="1"><output data-valor="opacidad"></output></label>
  <label>Duración del rastro <input name="duracion" type="range" min=".2" max="8" step=".1"><output data-valor="duracion"></output></label>
  <div class="muestra-puntero"><span>Texto de ejemplo del subrayador</span></div>
- <p>Con la página enfocada, usa las flechas para señalar y Escape para borrar el rastro.</p>`;
+ <p>Haz clic o apoya el lápiz para señalar. Con el teclado, elige dónde con las flechas y pulsa Intro para marcar. Escape borra el rastro.</p>`;
 
  let activo = false;
  let cuadro = 0;
@@ -1153,16 +1152,13 @@ document.querySelector('.salto').addEventListener('click', evento => {
   if(!activo) return;
   const caja=superficie.getBoundingClientRect();
   if(e.clientX<caja.left||e.clientX>=caja.right||e.clientY<caja.top||e.clientY>=caja.bottom){salir();return;}
-  if(gesto?.id===e.pointerId || (e.pointerType!=='touch'&&(ajustes.modo==='dot'||ajustes.libre))) {
-   colocar(e.clientX,e.clientY,true);
-  }
+  if(gesto?.id===e.pointerId) colocar(e.clientX,e.clientY,true);
  });
  superficie.addEventListener('pointerleave',salir);
  for(const tipo of ['pointerup','pointercancel','lostpointercapture']) superficie.addEventListener(tipo,e=>{
   if(gesto?.id!==e.pointerId) return;
   gesto=undefined;
-  if(e.pointerType==='touch'||tipo==='pointercancel') salir();
-  else trazo=undefined;
+  salir();
   setTimeout(()=>{suprimirClic=false;},0);
  });
  superficie.addEventListener('click',e=>{
@@ -1172,14 +1168,18 @@ document.querySelector('.salto').addEventListener('click', evento => {
   if(!activo||e.target!==superficie) return;
   const movimientos={ArrowLeft:[-12,0],ArrowRight:[12,0],ArrowUp:[0,-12],ArrowDown:[0,12]};
   const delta=movimientos[e.key];
-  if(!delta) return;
+  const marcar = e.key === 'Enter' || e.key === ' ';
+  if(!delta&&!marcar) return;
   e.preventDefault();
   const r=superficie.getBoundingClientRect();
   const x0=Math.max(r.left,0),y0=Math.max(r.top,0);
   const x1=Math.min(r.right,innerWidth),y1=Math.min(r.bottom,innerHeight);
   teclado ||= {x:(x0+x1)/2,y:(y0+y1)/2};
-  teclado={x:limitar(teclado.x+delta[0],x0,x1),y:limitar(teclado.y+delta[1],y0,y1)};
-  colocar(teclado.x,teclado.y,true);
+  if(delta) teclado={x:limitar(teclado.x+delta[0],x0,x1),y:limitar(teclado.y+delta[1],y0,y1)};
+  if(marcar) {
+   colocar(teclado.x,teclado.y);
+   trazo=undefined;
+  }
  });
  document.addEventListener('keydown',e=>{if(activo&&e.key==='Escape') limpiar();});
  window.addEventListener('blur',salir);
