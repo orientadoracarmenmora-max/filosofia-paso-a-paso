@@ -106,16 +106,7 @@ main.puntero-activo{touch-action:none;cursor:crosshair}
 .icono-puntero{display:inline-grid;place-items:center;width:2.75rem;height:2.75rem;padding:0;border-radius:50%}
 .icono-puntero svg{width:1.35rem;height:1.35rem;fill:none;stroke:currentColor;stroke-width:1.55;stroke-linejoin:round}
 .icono-puntero[aria-expanded=true]{background:#eaf0e5}
-
-.controles-puntero{align-items:center}
-.menu-ajustes,.ajustes-del-circulo{border:0;margin:0;padding:0}
-.menu-ajustes>summary{padding:.45rem .55rem}
-.menu-ajustes-panel{position:absolute;top:100%;right:0;width:min(24rem,100%);max-height:70vh;overflow:auto;margin:.3rem 0 0;padding:.65rem;box-shadow:0 .4rem 1rem #18372f33}
-.ajustes-del-circulo>summary{font-size:1.35rem}
-.menu-ajustes-panel .ajustes-puntero{position:static;width:auto;max-height:none;overflow:visible;box-shadow:none}
 </style>
-
-
 
 </head>
 <body>
@@ -132,16 +123,9 @@ main.puntero-activo{touch-action:none;cursor:crosshair}
 <div class="barra-puntero marco" id="barra-puntero" hidden>
  <div class="controles-puntero">
   <button type="button" class="icono-puntero" id="activar-puntero" aria-label="Puntero" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg></button>
-  <details class="menu-ajustes">
-   <summary>Ajustes</summary>
-   <div class="panel menu-ajustes-panel">
-    <details class="ajustes-del-circulo">
-     <summary aria-label="Ajustes del puntero"><span aria-hidden="true">◎</span></summary>
-     <section id="ajustes-puntero" class="ajustes-puntero" aria-label="Ajustes del puntero"></section>
-    </details>
-   </div>
-  </details>
+  <button type="button" class="icono-puntero" id="abrir-ajustes-puntero" aria-label="Ajustes del puntero" aria-expanded="false" aria-controls="ajustes-puntero"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m10 3-.5 2.4-1.6.9-2.3-.8-2 3.5 1.8 1.6v1.8l-1.8 1.6 2 3.5 2.3-.8 1.6.9.5 2.4h4l.5-2.4 1.6-.9 2.3.8 2-3.5-1.8-1.6v-1.8l1.8-1.6-2-3.5-2.3.8-1.6-.9L14 3z"/><circle cx="12" cy="11.5" r="2.7"/></svg></button>
  </div>
+ <section id="ajustes-puntero" class="panel ajustes-puntero" aria-label="Ajustes del puntero" hidden></section>
 </div>
 <canvas id="capa-puntero" aria-hidden="true" hidden></canvas>
 <main id="contenido" class="marco" tabindex="-1"></main>
@@ -668,54 +652,6 @@ function completarGuion(plantilla,respuestas) {
  return plantilla.replaceAll('___',()=>respuestas[i++]);
 }
 
-const desarrolloRespuestas = {
- "mito": [
-  "Esto distingue el número de personas que creen algo de las pruebas que tienen. Para decidir si un mensaje es fiable, comprobaría de dónde sale la información y si otras fuentes independientes la confirman.",
-  "El relato atribuye a Deméter sentimientos humanos, como la tristeza, y relaciona sus acciones con lo que ocurre en los campos. La explicación científica permite comprobar cómo varían la duración del día y la luz que recibe cada hemisferio.",
-  "El arjé debía ayudar a explicar cómo puede surgir tanta variedad de un principio común. Tales buscó la respuesta dentro de la naturaleza.",
-  "Cornford explica bien la continuidad de una pregunta que pasa del relato sobre los dioses a la búsqueda de un principio natural. Jaeger, por su parte, permite situar esa transformación en un cambio gradual de la cultura griega.",
-  "Por ejemplo, un programa puede encontrar la manera más rápida de vigilar un centro. La razón crítica examina para qué se quiere vigilar, a quién afecta y si habría una medida que protegiera mejor la intimidad.",
-  "Lo razonado de una propuesta está en que podemos examinar sus argumentos. Si encontramos razones mejores, podemos revisar la explicación.",
-  "Los tres comparten la búsqueda de un principio. El ápeiron de Anaximandro es indefinido e ilimitado. Anaxímenes explicaba cómo el aire podía dar lugar a otras cosas al condensarse o enrarecerse.",
-  "Por ejemplo, un mito puede explicar una tormenta por la acción de un dios. Una explicación racional busca causas en la naturaleza y permite contrastarlas con lo que observamos.",
-  "Adorno y Horkheimer llaman la atención sobre el riesgo de convertir una idea en un dogma. Un programa puede ser eficaz y, aun así, conviene examinar sus fines y decidir si merece la pena usarlo.",
-  "También influyó la escritura. Una explicación escrita se puede releer, comparar con otra y criticar. Eso ayuda a que circulen argumentos que distintas personas puedan discutir.",
-  "Al problematizar, podemos preguntarnos qué entendemos por libertad y qué razones tenemos para sostener nuestra idea. Después podemos revisar si esas razones explican los casos que nos hacen dudar.",
-  "Al dar una causa a la tormenta, el mito ya intenta ordenar lo desconocido. La razón se vuelve dogmática cuando una idea se acepta como inevitable y se dejan de examinar sus fines y consecuencias.",
-  "Un anuncio puede reforzar esa idea al asociar una compra con el éxito o la aceptación. Si la examinamos, podemos preguntar cuánto dura ese bienestar y qué otras experiencias nos hacen sentir bien."
- ],
- "amor": [
-  "La Voluntad de vivir es una fuerza ciega en esta teoría. La persona puede creer que su elección busca solo su propia felicidad, mientras que Schopenhauer interpreta el impulso en relación con la continuidad de la especie.",
-  "Por eso, para Aristófanes importa la unión con la otra mitad. En Diotima importa también aprender a valorar el carácter, las buenas acciones y el conocimiento.",
-  "Querer que alguien piense igual que yo pone por delante mis deseos. La atención consiste en escuchar su experiencia y respetar que pueda tener un punto de vista propio.",
-  "El mito explica esa búsqueda como un deseo de recuperar la unidad. Por eso la imagen de la media naranja sirve para hablar de la sensación de que nos falta algo cuando estamos separados.",
-  "En el mito, Penía simboliza la pobreza y Poros el ingenio para encontrar recursos. Su hijo Eros reúne ambas cosas: siente la falta y se pone en camino para buscar lo que desea.",
-  "Los apuntes llaman a ese recorrido la escala del amor. A medida que avanza, la persona descubre belleza en el carácter, las acciones y el conocimiento, hasta plantearse qué es la Belleza en sí.",
-  "Que la teoría explique una fuerza que interviene en la atracción deja abierta la pregunta de cómo se forma y se sostiene un vínculo mediante el cuidado y la elección diaria.",
-  "Puedo preguntar primero qué le preocupa y repetir lo que he entendido para comprobarlo. Comprender sus motivos me ayuda a responder con más atención, aunque mantenga mi punto de vista.",
-  "La distinción se ve al comparar «este cuadro es bello» con «¿qué es la belleza?». La segunda pregunta busca algo universal y permanente, más allá de una sola cosa bella.",
-  "Esa objeción distingue dos cuestiones: qué puede influir en el deseo y qué explica que dos personas se cuiden durante años. El primer punto no basta para responder al segundo.",
-  "Desde el mito se entiende la fuerza del deseo de unión. Desde Weil se puede preguntar si esa unión deja espacio para los intereses y decisiones de la otra persona.",
-  "El deseo de compartir admite que cada persona tenga su propia vida. La idea de «sin ti no soy nadie» lleva más lejos la sensación de falta del mito y puede convertirse en dependencia.",
-  "Aristófanes expresa mediante un mito lo que se siente al desear una unión. Una persona también puede sentirse plena con amistades, familia o proyectos propios, lo que limita el alcance de esa imagen.",
-  "Para entender la diferencia, sirve mirar qué pasa al día siguiente. La alegría de un mensaje puede pasar pronto. Un vínculo que se apoya en el respeto se construye con acciones que se repiten a lo largo del tiempo.",
-  "En los apuntes se habla de la alteridad, es decir, de reconocer al otro como alguien diferente. Se ve cuando escuchamos lo que necesita antes de dar por hecho que necesita lo mismo que nosotros.",
-  "La escala del amor me resulta convincente porque explica cómo una atracción concreta puede abrir el camino hacia una valoración más amplia. El mito de Aristófanes explica mejor, en cambio, la sensación inicial de querer estar con alguien."
- ],
- "conceptos": [
-  "Por ejemplo, una obra pública puede dar trabajo y generar ingresos. Parte de esos ingresos vuelve a gastarse en comercios y servicios. Así se entiende la relación entre el gasto, la demanda y el empleo.",
-  "Para estudiar ese ejemplo, miraría también cuánta agua consume cada persona, para qué se usa y cómo se reparte. El número de habitantes es uno de los factores que influyen en la presión sobre el recurso."
- ],
- "ramas": [
-  "La clave está en qué significa existir o qué clase de realidad se está planteando. Esa es la pregunta propia de la metafísica u ontología.",
-  "La clave está en cómo podemos saberlo o en qué razones tenemos para creer que es verdad. La epistemología estudia el conocimiento y sus límites.",
-  "La clave está en valorar cómo debemos actuar ante esa situación. La ética pregunta qué razones hacen que una acción sea justa, buena o responsable.",
-  "La clave está en cómo se organiza la convivencia, quién toma decisiones colectivas o con qué criterios se justifican las normas. Eso corresponde a la filosofía política.",
-  "La clave está en el paso de las premisas a la conclusión. La lógica permite examinar si la conclusión se sigue de las razones dadas.",
-  "La clave está en la belleza, el arte o la experiencia de quien observa una obra. La estética examina qué queremos decir al hacer ese tipo de juicio."
- ]
-};
-
 const planesRepaso = {
  mito: {
   orden:[0,1,7,5,3,2,6,9,4,8,10,11,12],
@@ -755,7 +691,7 @@ function practicarExamen(id) {
  function mostrar(mover = true) {
   detenerVoz();
   const numero = orden[actual];
-  const [tipo,pregunta,,modeloAnterior,ayuda,rama] = banco[numero];
+  const [tipo,pregunta,,modeloAnterior,ayuda] = banco[numero];
   const pasos = id === 'ramas' ? guionesBreves.ramas : guionesBreves[id][numero];
   const frase = pasos.map(([,texto])=>texto.replaceAll('___ .','___.')).join(' ');
   const modeloRama = /^Es de (.+?) porque (.+)\.$/s.exec(modeloAnterior);
@@ -763,7 +699,6 @@ function practicarExamen(id) {
    ? [modeloRama[1].replace(/ \(«Metafísica.*?\)/,' (Metafísica / Ontología en la lámina)'),modeloRama[2]]
    : huecosResueltos[id][numero];
   const ejemplo = completarGuion(frase,respuestas);
-  const desarrollo = desarrolloRespuestas[id][id === 'ramas' ? rama : numero];
   panel.innerHTML = `${contador(actual,banco.length)}<p class="kicker">${tipo}</p>
    <h2 id="consigna-examen" tabindex="-1">${pregunta}</h2><div data-audio-pregunta></div>
    <details><summary>Ver pista para entender la pregunta</summary><p>${ayuda}</p></details>
@@ -771,13 +706,13 @@ function practicarExamen(id) {
    <ol class="guion-respuesta">${pasos.map(([accion,texto])=>`<li><strong>${accion}</strong><p>«${texto.replaceAll('___ .','___.')}»</p></li>`).join('')}</ol>
    <button type="button" id="usar-examen">Poner las frases en mi respuesta</button>
    <label class="campo-examen" for="texto-examen"><strong>Mi respuesta</strong></label><textarea id="texto-examen" aria-describedby="consigna-examen"></textarea>
-   <details id="ejemplo-examen" class="modelo-respuesta"><summary>Ver posible solución</summary><p>${ejemplo}</p><p><strong>Para desarrollarla un poco más</strong></p><p>${desarrollo}</p></details>
+   <details id="ejemplo-examen" class="modelo-respuesta"><summary>Ver posible solución</summary><p>${ejemplo}</p></details>
    <div class="acciones">
     ${actual>0?'<button type="button" id="prev-examen">Anterior</button>':''}
     ${actual<banco.length-1?'<button type="button" id="next-examen" class="primario">Siguiente pregunta</button>':boton('Terminar y volver a la guía','inicio',true)}
    </div>`;
   controlesAudio(panel.querySelector('[data-audio-pregunta]'), pregunta + ' ' + ayuda + ' ' + pasos.map(([accion,frase])=>accion + ' ' + frase.replaceAll('___',' espacio en blanco ')).join(' '), 'Escuchar pregunta y ayuda');
-  controlesAudio(panel.querySelector('.modelo-respuesta'),ejemplo + ' ' + desarrollo,'Escuchar solución');
+  controlesAudio(panel.querySelector('.modelo-respuesta'),ejemplo,'Escuchar solución');
   const area = panel.querySelector('textarea');
   area.value = borradores[actual];
   area.oninput = () => { borradores[actual] = area.value; };
@@ -1002,6 +937,7 @@ document.querySelector('.salto').addEventListener('click', evento => {
  const barra = document.querySelector('#barra-puntero');
  const panel = document.querySelector('#ajustes-puntero');
  const activar = document.querySelector('#activar-puntero');
+ const abrirAjustes = document.querySelector('#abrir-ajustes-puntero');
  const lienzo = document.querySelector('#capa-puntero');
  const ctx = lienzo.getContext('2d');
  const clave = 'filosofia-puntero';
@@ -1086,6 +1022,10 @@ document.querySelector('.salto').addEventListener('click', evento => {
   if(activo) superficie.focus({preventScroll:true});
  }
  activar.onclick=()=>activarPuntero(!activo);
+ abrirAjustes.onclick=()=>{
+  panel.hidden=!panel.hidden;
+  abrirAjustes.setAttribute('aria-expanded',String(!panel.hidden));
+ };
  function pedirCuadro() {
   if(!cuadro) cuadro=requestAnimationFrame(dibujar);
  }
@@ -1250,6 +1190,7 @@ document.querySelector('.salto').addEventListener('click', evento => {
  barra.removeAttribute('hidden');
  actualizarAjustes();
 })();
+
 </script>
 </body>
 </html>
